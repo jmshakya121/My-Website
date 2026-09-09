@@ -141,7 +141,7 @@ export const SOFTWARE_ITEMS = [
   },
   {
     id: 'portfolio-3d-template',
-    name: '3D Portfolio Starter Kit',
+    name: 'React Portfolio Starter Kit',
     description:
       'Production-ready React + Three.js portfolio template with glassmorphism, neon FX, and responsive layout. Drop in your data and go live.',
     category: '3D Templates',
@@ -157,20 +157,37 @@ export const SOFTWARE_ITEMS = [
     badge: 'Featured',
   },
   {
-    id: 'ticket-dashboard-ui',
-    name: 'Service Desk UI Kit',
+    id: 'shortcut-keys-infographic',
+    name: '100 Computer Shortcut Keys Infographic',
     description:
-      'Reusable ticket-dashboard components (feeds, SLA badges, role-based layouts) extracted from Service Desk Pro — ready to drop into your own admin app.',
+      'Printable PDF cheat-sheet covering 100 essential keyboard shortcuts across Windows, browsers, and IDEs. Great for your desk or dev onboarding.',
     category: 'Resources',
-    version: '0.9.0',
-    size: '~4 MB',
-    date: '2026-08-25',
-    type: '.zip',
-    lang: 'React / Tailwind',
-    securityNote: 'Feel free to adapt; attribution appreciated.',
-    releaseUrl: `${PROFILE.github}/releases/tag/service-desk-ui-kit-v0.9.0`,
+    version: '1.0.0',
+    size: '2 MB',
+    date: '2026-09-03',
+    type: '.pdf',
+    lang: 'PDF / Infographic',
+    securityNote: 'Free to share — keep my author credit intact.',
+    releaseUrl: `${PROFILE.github}/releases/tag/shortcut-keys-v1.0.0`,
     funnelUrl: null,
-    downloads: '189',
+    downloads: '540',
+    badge: 'New',
+  },
+  {
+    id: 'three-canvas-snippets',
+    name: '3D Canvas Snippets',
+    description:
+      'Copy-paste collection of React Three Fiber building blocks: particle fields, neon shapes, camera rigs, and glow materials.',
+    category: 'Resources',
+    version: '0.8.0',
+    size: '~1 MB',
+    date: '2026-08-30',
+    type: '.zip',
+    lang: 'R3F / GLSL / JS',
+    securityNote: 'MIT-licensed snippets — use freely in your own projects.',
+    releaseUrl: `${PROFILE.github}/releases/tag/three-canvas-snippets-v0.8.0`,
+    funnelUrl: null,
+    downloads: '208',
     badge: null,
   },
 ]
@@ -178,7 +195,7 @@ export const SOFTWARE_ITEMS = [
 /* Hire / client intake configuration */
 export const HIRE = {
   endpoint: 'https://api.web3forms.com/submit',
-  accessKey: '', // TODO: sign up free at https://web3forms.com and paste your access key
+  accessKey: '24cb19db-a758-4f42-a848-d241edafb57d',
   subjectPrefix: 'New Project Request',
   budgetOptions: ['$100 - $500', '$500 - $1,500', '$1,500+'],
   projectTypes: ['Web App', '3D / Interactive', 'UI/UX Design', 'Utility Script'],
@@ -193,11 +210,12 @@ export const HIRE = {
 export const TOOLS = [
   { title: 'Hostinger', tag: 'Web Hosting', icon: 'Globe', description: 'Budget-friendly hosting with a free domain — every project I deploy runs great here.', affiliateUrl: '#' },
   { title: 'Vercel', tag: 'Deploy', icon: 'Zap', description: 'Zero-config deploys for React/Next.js apps with instant CDN.', affiliateUrl: '#' },
+  { title: 'GitHub', tag: 'Code Hosting', icon: 'GitBranch', description: 'Version control, releases, and this very portfolio repo.', affiliateUrl: '#' },
+  { title: 'Tailwind CSS', tag: 'Styling', icon: 'Wind', description: 'Utility-first CSS framework — the design backbone of this site.', affiliateUrl: '#' },
   { title: 'Namecheap', tag: 'Domains', icon: 'Globe', description: 'Affordable domains — my go-to for jmshakya.com.np.', affiliateUrl: '#' },
   { title: 'Figma', tag: 'Design', icon: 'PenTool', description: 'UI/UX mockups, prototypes, and design systems.', affiliateUrl: '#' },
   { title: 'Three.js', tag: '3D Web', icon: 'Box', description: 'The WebGL library behind all the interactive 3D on this site.', affiliateUrl: '#' },
   { title: 'VS Code', tag: 'Editor', icon: 'Code2', description: 'My daily driver editor with Copilot for fast shipping.', affiliateUrl: '#' },
-  { title: 'GitHub', tag: 'Code Hosting', icon: 'GitBranch', description: 'Version control, releases, and this very portfolio repo.', affiliateUrl: '#' },
   { title: 'DigitalOcean', tag: 'Cloud', icon: 'Cloud', description: 'Droplet hosting for client backends and databases.', affiliateUrl: '#' },
 ]
 

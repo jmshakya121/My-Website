@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import {
-  Globe, Zap, PenTool, Box, Code2, GitBranch, Cloud,
+  Globe, Zap, PenTool, Box, Code2, GitBranch, Cloud, Wind,
   ExternalLink, Wrench, Info,
 } from 'lucide-react'
 import { TOOLS } from '../data/profile'
@@ -13,6 +13,7 @@ const iconMap = {
   Code2,
   GitBranch,
   Cloud,
+  Wind,
 }
 
 export default function ToolsSection() {
