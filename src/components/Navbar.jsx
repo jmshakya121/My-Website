@@ -5,9 +5,10 @@ import { PROFILE } from '../data/profile'
 const LINKS = [
   { label: 'Home', href: '#home' },
   { label: 'Projects', href: '#projects' },
-  { label: 'Software', href: '#software' },
+  { label: 'Downloads', href: '#software' },
+  { label: 'Tools', href: '#tools' },
   { label: 'Connect', href: '#connect' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Contact', href: '#hire' },
 ]
 
 export default function Navbar() {
@@ -64,7 +65,7 @@ export default function Navbar() {
         </div>
 
         <a
-          href="#contact"
+          href="#hire"
           className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 border border-neon-cyan/40 hover:shadow-[0_0_30px_rgba(0,240,255,0.3)] hover:-translate-y-0.5 transition-all duration-300"
         >
           <Sparkles className="w-4 h-4 text-neon-cyan" />
@@ -102,7 +103,7 @@ export default function Navbar() {
             </a>
           ))}
           <a
-            href="#contact"
+            href="#hire"
             onClick={() => setOpen(false)}
             className="mt-4 inline-flex items-center justify-center gap-2 py-4 rounded-xl font-semibold text-white bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 border border-neon-cyan/40"
           >

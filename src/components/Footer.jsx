@@ -16,9 +16,10 @@ const socials = [
 const quickLinks = [
   { label: 'Home', href: '#home' },
   { label: 'Projects', href: '#projects' },
-  { label: 'Software Hub', href: '#software' },
+  { label: 'Downloads', href: '#software' },
+  { label: 'Tools', href: '#tools' },
   { label: 'Social Connect', href: '#connect' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Hire Me', href: '#hire' },
 ]
 
 export default function Footer() {

@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { motion } from 'framer-motion'
-import { MapPin, MousePointer2, Rocket, Code2, Laptop, Mail, ChevronDown, Loader2 } from 'lucide-react'
+import { MapPin, MousePointer2, Handshake, Code2, Laptop, Mail, ChevronDown, Loader2 } from 'lucide-react'
 import { PROFILE } from '../data/profile'
 
 const HeroScene = lazy(() => import('./three/HeroScene.jsx'))
@@ -72,10 +72,13 @@ export default function Hero() {
             </div>
 
             <div className="flex flex-wrap gap-4 mb-10">
-              <a href="#projects" className="btn-primary">
-                <Rocket className="w-5 h-5" /> Explore Software
+              <a href="#hire" className="btn-primary">
+                <Handshake className="w-5 h-5" /> Hire Me / Request a Project
               </a>
               <a href="#projects" className="btn-secondary">
+                Explore Software
+              </a>
+              <a href="#software" className="btn-secondary">
                 View Projects
               </a>
             </div>

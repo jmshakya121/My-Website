@@ -5,9 +5,10 @@ import Navbar from './components/Navbar.jsx'
 import Hero from './components/Hero.jsx'
 import Skills from './components/Skills.jsx'
 import Projects from './components/Projects.jsx'
-import SoftwareHub from './components/SoftwareHub.jsx'
+import DownloadHub from './components/DownloadHub.jsx'
+import ToolsSection from './components/ToolsSection.jsx'
 import Connect from './components/Connect.jsx'
-import Contact from './components/Contact.jsx'
+import ContactSection from './components/ContactSection.jsx'
 import Footer from './components/Footer.jsx'
 
 function BackgroundFX() {
@@ -60,9 +61,10 @@ export default function App() {
           <Hero />
           <Skills />
           <Projects />
-          <SoftwareHub />
+          <DownloadHub />
+          <ToolsSection />
           <Connect />
-          <Contact />
+          <ContactSection />
         </main>
         <Footer />
         <ScrollTopBtn />

@@ -21,7 +21,9 @@ export const PROFILE = {
     youtube: 'https://www.youtube.com/@J_EMS_SH',
     instagram: 'https://www.instagram.com/__j_e_m_s___/',
     facebook: 'https://www.facebook.com/jm.shakya.9',
+    linkedin: '', // TODO: add your LinkedIn profile URL
   },
+  github: 'https://github.com/jmshakya121/My-Website',
 }
 
 export const PROJECTS = {
@@ -61,6 +63,8 @@ export const SOFTWARE_ITEMS = [
       'Review script source before running. Use at your own risk. Only run on systems you own.',
     downloadUrl: `${import.meta.env.BASE_URL}software/windows-activate.cmd`,
     downloadName: 'WindowsActivite.cmd',
+    releaseUrl: `${import.meta.env.BASE_URL}software/windows-activate.cmd`,
+    funnelUrl: null, // e.g. your CPAGrip / Linkvertise / Gumroad checkout link
     downloads: '2,341',
     badge: 'Popular',
   },
@@ -79,6 +83,8 @@ export const SOFTWARE_ITEMS = [
       'Review script source before running. Use at your own risk. Only run on systems you own.',
     downloadUrl: `${import.meta.env.BASE_URL}software/office-activate.cmd`,
     downloadName: 'OfficeActivite.cmd',
+    releaseUrl: `${import.meta.env.BASE_URL}software/office-activate.cmd`,
+    funnelUrl: null,
     downloads: '1,876',
     badge: 'New',
   },
@@ -94,6 +100,8 @@ export const SOFTWARE_ITEMS = [
     type: '.bat',
     lang: 'Batch Script',
     securityNote: 'Safe to run; no registry modifications.',
+    releaseUrl: `${PROFILE.github}/releases/tag/system-cleaner-v2.4.1`,
+    funnelUrl: null,
     downloads: '1,891',
     badge: null,
   },
@@ -109,6 +117,8 @@ export const SOFTWARE_ITEMS = [
     type: '.bat',
     lang: 'Batch Script',
     securityNote: 'Read-only; does not send any data externally.',
+    releaseUrl: `${PROFILE.github}/releases/tag/net-speed-check-v1.2.0`,
+    funnelUrl: null,
     downloads: '987',
     badge: null,
   },
@@ -124,9 +134,71 @@ export const SOFTWARE_ITEMS = [
     type: '.bat',
     lang: 'Batch Script',
     securityNote: 'Requires admin rights to schedule tasks.',
+    releaseUrl: `${PROFILE.github}/releases/tag/backup-automation-v3.0.0`,
+    funnelUrl: null,
     downloads: '654',
     badge: 'New',
   },
+  {
+    id: 'portfolio-3d-template',
+    name: '3D Portfolio Starter Kit',
+    description:
+      'Production-ready React + Three.js portfolio template with glassmorphism, neon FX, and responsive layout. Drop in your data and go live.',
+    category: '3D Templates',
+    version: '1.0.0',
+    size: '~10 MB',
+    date: '2026-09-01',
+    type: '.zip',
+    lang: 'React / Tailwind / R3F',
+    securityNote: 'Open-source template — audit the source in the GitHub repo before deploying.',
+    releaseUrl: `${PROFILE.github}/releases/tag/portfolio-starter-v1.0.0`,
+    funnelUrl: null,
+    downloads: '312',
+    badge: 'Featured',
+  },
+  {
+    id: 'ticket-dashboard-ui',
+    name: 'Service Desk UI Kit',
+    description:
+      'Reusable ticket-dashboard components (feeds, SLA badges, role-based layouts) extracted from Service Desk Pro — ready to drop into your own admin app.',
+    category: 'Resources',
+    version: '0.9.0',
+    size: '~4 MB',
+    date: '2026-08-25',
+    type: '.zip',
+    lang: 'React / Tailwind',
+    securityNote: 'Feel free to adapt; attribution appreciated.',
+    releaseUrl: `${PROFILE.github}/releases/tag/service-desk-ui-kit-v0.9.0`,
+    funnelUrl: null,
+    downloads: '189',
+    badge: null,
+  },
+]
+
+/* Hire / client intake configuration */
+export const HIRE = {
+  endpoint: 'https://api.web3forms.com/submit',
+  accessKey: '', // TODO: sign up free at https://web3forms.com and paste your access key
+  subjectPrefix: 'New Project Request',
+  budgetOptions: ['$100 - $500', '$500 - $1,500', '$1,500+'],
+  projectTypes: ['Web App', '3D / Interactive', 'UI/UX Design', 'Utility Script'],
+  trust: [
+    { label: 'Fast Turnaround', detail: 'First draft in 2–3 days' },
+    { label: '100% Satisfaction', detail: 'Unlimited fixes until you love it' },
+    { label: 'Clean, Modern Code', detail: 'Maintainable & documented' },
+  ],
+}
+
+/* Affiliate / "Tools I Use" links — replace "#" with your real affiliate URLs */
+export const TOOLS = [
+  { title: 'Hostinger', tag: 'Web Hosting', icon: 'Globe', description: 'Budget-friendly hosting with a free domain — every project I deploy runs great here.', affiliateUrl: '#' },
+  { title: 'Vercel', tag: 'Deploy', icon: 'Zap', description: 'Zero-config deploys for React/Next.js apps with instant CDN.', affiliateUrl: '#' },
+  { title: 'Namecheap', tag: 'Domains', icon: 'Globe', description: 'Affordable domains — my go-to for jmshakya.com.np.', affiliateUrl: '#' },
+  { title: 'Figma', tag: 'Design', icon: 'PenTool', description: 'UI/UX mockups, prototypes, and design systems.', affiliateUrl: '#' },
+  { title: 'Three.js', tag: '3D Web', icon: 'Box', description: 'The WebGL library behind all the interactive 3D on this site.', affiliateUrl: '#' },
+  { title: 'VS Code', tag: 'Editor', icon: 'Code2', description: 'My daily driver editor with Copilot for fast shipping.', affiliateUrl: '#' },
+  { title: 'GitHub', tag: 'Code Hosting', icon: 'GitBranch', description: 'Version control, releases, and this very portfolio repo.', affiliateUrl: '#' },
+  { title: 'DigitalOcean', tag: 'Cloud', icon: 'Cloud', description: 'Droplet hosting for client backends and databases.', affiliateUrl: '#' },
 ]
 
 export const SKILLS = [
