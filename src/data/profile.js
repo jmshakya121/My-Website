@@ -58,6 +58,8 @@ export const SOFTWARE_ITEMS = [
     title: '1-Click Windows Temp & Junk Cleaner',
     category: 'System Utility',
     size: '1.4 KB',
+    endpoint: 'Operational',
+    health: 100,
     description:
       'Wipes user temp files, system cache, prefetch data, and flushes DNS in one click.',
     funnelUrl: ADSTERRA_SMARTLINK,
@@ -68,6 +70,8 @@ export const SOFTWARE_ITEMS = [
     title: '1-Click Network & System Optimizer',
     category: 'Network & Optimization',
     size: '1.4 KB',
+    endpoint: 'Operational',
+    health: 100,
     description:
       'Resets Winsock/IP stack, flushes DNS, clears thumbnail cache, and optimizes adapter settings.',
     funnelUrl: ADSTERRA_SMARTLINK,
@@ -78,6 +82,8 @@ export const SOFTWARE_ITEMS = [
     title: 'Windows.old Storage Remover',
     category: 'Disk Storage',
     size: '1.5 KB',
+    endpoint: 'Stable',
+    health: 98,
     description:
       'Takes system ownership and safely removes C:\\Windows.old to free up 20GB+ space.',
     funnelUrl: ADSTERRA_SMARTLINK,
@@ -88,6 +94,8 @@ export const SOFTWARE_ITEMS = [
     title: 'Office Activator Utility',
     category: 'Automation Utility',
     size: '744 KB',
+    endpoint: 'Operational',
+    health: 100,
     description:
       'Automated batch script utility for Office environment configuration.',
     funnelUrl: ADSTERRA_SMARTLINK,
@@ -98,6 +106,8 @@ export const SOFTWARE_ITEMS = [
     title: 'Windows Activator Utility',
     category: 'Automation Utility',
     size: '744 KB',
+    endpoint: 'Operational',
+    health: 100,
     description:
       'Automated batch script utility for Windows environment setup.',
     funnelUrl: ADSTERRA_SMARTLINK,
@@ -108,6 +118,8 @@ export const SOFTWARE_ITEMS = [
     title: 'Universal Hardware Driver Installer',
     category: 'System Utility',
     size: '5 MB',
+    endpoint: 'Operational',
+    health: 99,
     description:
       'Automated driver assistant that scans missing hardware device IDs and installs matching drivers automatically.',
     funnelUrl: ADSTERRA_SMARTLINK,

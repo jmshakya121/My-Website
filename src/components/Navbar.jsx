@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Menu, X, Sparkles, Terminal, Sun, Moon } from 'lucide-react'
+import { Menu, X, Sparkles, Terminal, Sun, Moon, Search } from 'lucide-react'
 import { PROFILE } from '../data/profile'
 
 const TABS = [
@@ -80,6 +80,15 @@ export default function Navbar({ view = 'dashboard', onNavigate, theme = 'dark',
 
         {/* Actions */}
         <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('open-command-palette'))}
+            className="p-2.5 rounded-xl text-white/70 hover:text-white bg-white/[0.04] hover:bg-white/[0.10] border border-white/[0.06] hover:border-neon-cyan/40 transition-all duration-300"
+            aria-label="Open command palette (Ctrl+K)"
+            title="Search (Ctrl+K)"
+          >
+            <Search className="w-5 h-5" />
+          </button>
+
           <button
             onClick={() => handleTab('contact')}
             className="hidden lg:inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-semibold text-white bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 border border-neon-cyan/40 hover:shadow-[0_0_26px_rgba(0,240,255,0.3)] hover:-translate-y-0.5 transition-all duration-300"

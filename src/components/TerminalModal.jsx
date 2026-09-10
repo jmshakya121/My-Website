@@ -7,7 +7,8 @@ const HELP = [
   ['help', 'Show this help screen'],
   ['ls | tools', 'List all downloadable scripts'],
   ['download <id>', 'Trigger the download gate for a script'],
-  ['whoami', 'Developer bio & portfolio summary'],
+  ['whoami | about', 'Developer bio & portfolio summary'],
+  ['theme', 'Toggle dark / light mode'],
   ['clear', 'Clear the terminal'],
 ]
 
@@ -31,17 +32,6 @@ export default function TerminalModal() {
   const [histIdx, setHistIdx] = useState(-1)
   const scrollRef = useRef(null)
   const inputRef = useRef(null)
-
-  useEffect(() => {
-    const onKey = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault()
-        setOpen((o) => !o)
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [])
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })
@@ -90,6 +80,7 @@ export default function TerminalModal() {
         ])
         break
       case 'whoami':
+      case 'about':
         push([
           ...base,
           { type: 'accent', text: PROFILE.name },
@@ -99,6 +90,11 @@ export default function TerminalModal() {
           { type: 'out', text: `Site: ${PROFILE.domain}  GitHub: ${PROFILE.github}` },
           { type: 'info', text: 'Full-stack dev building web apps, 3D interactive experiences, and utility scripts.' },
         ])
+        break
+      case 'theme':
+      case 'mode':
+        window.dispatchEvent(new CustomEvent('toggle-theme'))
+        push([...base, { type: 'ok', text: 'Theme toggled — look around, it reapplies everywhere.' }])
         break
       case 'download': {
         if (!arg) {
@@ -163,7 +159,7 @@ export default function TerminalModal() {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         className="fixed bottom-6 left-6 z-[90] flex items-center gap-2 px-4 py-3 rounded-xl glass-strong border border-neon-cyan/40 text-sm font-semibold text-white hover:shadow-[0_0_30px_rgba(0,240,255,0.35)] transition-shadow duration-300"
-        aria-label="Open terminal (Ctrl+K)"
+        aria-label="Open terminal"
       >
         <Terminal className="w-4 h-4 text-neon-cyan" />
         <span className="hidden sm:inline">Terminal</span>
@@ -209,7 +205,7 @@ export default function TerminalModal() {
             </div>
 
             <div className="flex items-center gap-2 px-4 py-3 border-t border-white/10 bg-white/[0.04]">
-              <span className="font-mono text-sm text-neon-cyan">\u203A</span>
+              <span className="font-mono text-sm text-neon-cyan">{'\u203A'}</span>
               <input
                 ref={inputRef}
                 value={value}

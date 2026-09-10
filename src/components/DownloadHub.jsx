@@ -5,6 +5,7 @@ import {
   AlertTriangle, Package, HardDrive, X, Lock,
   Rocket, ExternalLink, KeyRound, UserCheck, Unlock, ShieldCheck, Eye,
   Clock, Shield, Wrench, Database, Wifi, Zap,
+  HeartPulse, Terminal,
 } from 'lucide-react'
 import { SOFTWARE_ITEMS } from '../data/profile'
 import TiltCard from './TiltCard.jsx'
@@ -85,6 +86,16 @@ function directDownload(item) {
   document.body.appendChild(a)
   a.click()
   a.remove()
+}
+
+/* One-liner for power users to run the asset in PowerShell/CMD */
+function commandFor(item) {
+  const url = `${window.location.origin}${fileUrlOf(item)}`
+  const file = fileUrlOf(item).split('/').pop()
+  if (SCRIPT_TYPES.includes(typeOf(item))) {
+    return `irm ${url} | iex`
+  }
+  return `iwr ${url} -OutFile "$env:USERPROFILE\\Downloads\\${file}"; explorer "$env:USERPROFILE\\Downloads\\${file}"`
 }
 
 /* ---------------- 2-STEP GATE MODAL ---------------- */
@@ -495,6 +506,7 @@ function AssetCard({ item, index, forceOpen }) {
   const [gateOpen, setGateOpen] = useState(false)
   const [previewOpen, setPreviewOpen] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [cmdCopied, setCmdCopied] = useState(false)
 
   useEffect(() => {
     if (forceOpen) setGateOpen(true)
@@ -519,6 +531,16 @@ function AssetCard({ item, index, forceOpen }) {
       setTimeout(() => setCopied(false), 2000)
     } catch {
       setCopied(false)
+    }
+  }
+
+  const copyCommand = async () => {
+    try {
+      await navigator.clipboard.writeText(commandFor(item))
+      setCmdCopied(true)
+      setTimeout(() => setCmdCopied(false), 2000)
+    } catch {
+      setCmdCopied(false)
     }
   }
 
@@ -582,6 +604,16 @@ function AssetCard({ item, index, forceOpen }) {
             <Rocket className="w-3 h-3" /> Monetized
           </span>
         )}
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-400/10 text-emerald-400 border border-emerald-400/30">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+          </span>
+          {item.endpoint || 'Operational'}
+        </span>
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] text-white/60 border border-white/10">
+          <HeartPulse className="w-3 h-3 text-emerald-400" /> Health: {item.health ?? 100}%
+        </span>
       </div>
 
       <div className={`text-xs text-amber-300/90 bg-amber-400/[0.06] border border-amber-400/20 rounded-lg px-3 py-2 flex items-start gap-2 mb-4 ${expanded ? '' : 'relative max-h-11 overflow-hidden'}`}>
@@ -614,6 +646,18 @@ function AssetCard({ item, index, forceOpen }) {
           >
             <Lock className="w-4 h-4 text-neon-cyan group-hover:animate-pulse" />
             Unlock File
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={copyCommand}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-12 rounded-lg text-sm font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-400/30 hover:bg-emerald-500/20 hover:-translate-y-0.5 transition-all duration-300"
+          >
+            {cmdCopied ? (
+              <><Check className="w-4 h-4" /> Command copied!</>
+            ) : (
+              <><Terminal className="w-4 h-4" /> Copy Command</>
+            )}
           </motion.button>
           {SCRIPT_TYPES.includes(typeOf(item)) && (
             <motion.button

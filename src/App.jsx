@@ -9,6 +9,7 @@ import Connect from './components/Connect.jsx'
 import ContactSection from './components/ContactSection.jsx'
 import Footer from './components/Footer.jsx'
 import TerminalModal from './components/TerminalModal.jsx'
+import CommandPalette from './components/CommandPalette.jsx'
 import DynamicBackground from './components/three/DynamicBackground.jsx'
 import useTheme from './hooks/useTheme'
 
@@ -85,13 +86,16 @@ export default function App() {
       handleNavigate('software')
       setPendingGate(e.detail?.id || null)
     }
+    const onToggleTheme = () => toggleTheme()
     window.addEventListener('navigate-view', onNavigate)
     window.addEventListener('open-software-download', onOpenSoftwareDownload)
+    window.addEventListener('toggle-theme', onToggleTheme)
     return () => {
       window.removeEventListener('navigate-view', onNavigate)
       window.removeEventListener('open-software-download', onOpenSoftwareDownload)
+      window.removeEventListener('toggle-theme', onToggleTheme)
     }
-  }, [handleNavigate])
+  }, [handleNavigate, toggleTheme])
 
   return (
     <div className="relative font-sans text-white antialiased selection:bg-neon-cyan/30 themed">
@@ -125,6 +129,7 @@ export default function App() {
         <Footer />
         <ScrollTopBtn />
         <TerminalModal />
+        <CommandPalette />
       </div>
     </div>
   )

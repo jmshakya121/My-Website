@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { QRCodeSVG } from 'qrcode.react'
 import {
   Youtube, Instagram, Facebook, Play, ThumbsUp, Users,
   Video, X, ExternalLink, Image, ScanLine, Sparkles,
+  Download, Mail, Phone, Check,
 } from 'lucide-react'
 import { MEDIA, PROFILE } from '../data/profile'
 
@@ -22,9 +23,51 @@ function StatBadge({ icon: Icon, value, label }) {
 }
 
 function InstagramModal({ open, onClose }) {
+  const [toast, setToast] = useState(null)
+  const copyToast = useRef(null)
+
   if (!open) return null
 
+  const showToast = (msg) => {
+    setToast(msg)
+    clearTimeout(copyToast.current)
+    copyToast.current = setTimeout(() => setToast(null), 2400)
+  }
+
+  const copyText = async (text, label) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      showToast(`${label} copied to clipboard!`)
+    } catch {
+      showToast('Copy failed — please copy manually.')
+    }
+  }
+
+  const downloadVCard = () => {
+    const vcf = [
+      'BEGIN:VCARD',
+      'VERSION:3.0',
+      `FN:${PROFILE.name}`,
+      `ORG:${PROFILE.domain}`,
+      `TEL;TYPE=CELL:+${PROFILE.contact.phoneRaw}`,
+      `EMAIL:${PROFILE.contact.email}`,
+      `URL:https://${PROFILE.domain}`,
+      'END:VCARD',
+    ].join('\n')
+    const blob = new Blob([vcf], { type: 'text/vcard;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'jm-shakya.vcf'
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+    showToast('vCard downloaded!')
+  }
+
   return (
+    <>
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -103,9 +146,48 @@ function InstagramModal({ open, onClose }) {
           >
             <ExternalLink className="w-4 h-4" /> Open Instagram
           </a>
+
+          <div className="grid grid-cols-3 gap-2.5 mt-4">
+            <button
+              type="button"
+              onClick={downloadVCard}
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-white/80 bg-white/[0.04] border border-white/15 hover:border-neon-violet/50 hover:text-white transition-all duration-300"
+            >
+              <Download className="w-3.5 h-3.5 text-neon-violet" /> vCard
+            </button>
+            <button
+              type="button"
+              onClick={() => copyText(PROFILE.contact.email, 'Email')}
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-white/80 bg-white/[0.04] border border-white/15 hover:border-neon-cyan/50 hover:text-white transition-all duration-300"
+            >
+              <Mail className="w-3.5 h-3.5 text-neon-cyan" /> Email
+            </button>
+            <button
+              type="button"
+              onClick={() => copyText(PROFILE.contact.phone, 'Phone')}
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-white/80 bg-white/[0.04] border border-white/15 hover:border-emerald-400/50 hover:text-white transition-all duration-300"
+            >
+              <Phone className="w-3.5 h-3.5 text-emerald-400" /> Phone
+            </button>
+          </div>
         </div>
       </motion.div>
     </motion.div>
+
+    <AnimatePresence>
+      {toast && (
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 12 }}
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[130] flex items-center gap-2 px-4 py-2.5 rounded-xl glass-strong border border-neon-cyan/40 text-sm text-white font-mono text-center shadow-2xl"
+        >
+          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+          {toast}
+        </motion.div>
+      )}
+    </AnimatePresence>
+    </>
   )
 }
 

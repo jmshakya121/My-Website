@@ -1,8 +1,9 @@
 import { useRef, useState, useCallback } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   LineChart, UserCheck, Zap, ArrowUpRight,
   Activity, Clock, ShieldCheck, FolderKanban, CheckCircle2, Mail,
+  Braces, ChevronDown, ChevronUp, Workflow, Network, Server,
 } from 'lucide-react'
 import { PROJECTS } from '../data/profile'
 
@@ -13,6 +14,26 @@ const featureIcons = {
   'Detailed Analytics': LineChart,
 }
 
+const TECH_STACK = [
+  'Next.js / React', 'Node.js + Express', 'MongoDB', 'Redis Cache',
+  'Socket.IO', 'TypeScript', 'Tailwind CSS', 'Docker', 'Vercel',
+]
+
+const AUTOMATION = [
+  'SLA-aware auto-assignment rules',
+  'Priority-based escalation engine',
+  'Email → ticket ingestion pipeline',
+  'Status state-machine & SLAs',
+  'Scheduled analytics & SLA reports',
+]
+
+const ROUTING = [
+  { step: 'Ingest', detail: 'Web, email, and API all feed the request queue' },
+  { step: 'Classify', detail: 'Rules + ML tags category, priority & agent scope' },
+  { step: 'Route', detail: 'Skill-match and round-robin assignment to agents' },
+  { step: 'Escalate', detail: 'Time-based SLA watchdog re-routes stuck tickets' },
+]
+
 const mockTickets = [
   { id: 'TKT-1024', title: 'Network outage in Building A', tag: 'High', status: 'open' },
   { id: 'TKT-1025', title: 'Printer driver update required', tag: 'Medium', status: 'progress' },
@@ -22,6 +43,7 @@ const mockTickets = [
 function TiltCard() {
   const ref = useRef(null)
   const [transform, setTransform] = useState('perspective(1000px) rotateX(0deg) rotateY(0deg)')
+  const [detailOpen, setDetailOpen] = useState(false)
 
   const onMove = useCallback((e) => {
     const el = ref.current
@@ -180,7 +202,92 @@ function TiltCard() {
               >
                 Live Demo <ArrowUpRight className="w-4 h-4" />
               </a>
+              <button
+                type="button"
+                onClick={() => setDetailOpen((o) => !o)}
+                className="btn-secondary text-sm px-5 py-2.5"
+                style={{ transform: 'translateZ(50px)' }}
+              >
+                <Braces className="w-4 h-4" /> Architecture &amp; Case Study
+                {detailOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </button>
             </div>
+
+            <AnimatePresence>
+              {detailOpen && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.5, ease: 'easeInOut' }}
+                  className="overflow-hidden"
+                >
+                  <div className="mt-6 grid md:grid-cols-3 gap-5">
+                    {/* Tech stack */}
+                    <div className="glass rounded-2xl p-6 border-white/10">
+                      <div className="flex items-center gap-2.5 mb-4">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-neon-cyan/10 border border-neon-cyan/30">
+                          <Server className="w-4 h-4 text-neon-cyan" />
+                        </span>
+                        <h4 className="text-sm font-bold text-white">Tech Stack</h4>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {TECH_STACK.map((tech) => (
+                          <span
+                            key={tech}
+                            className="px-2.5 py-1 rounded-lg text-[11px] font-mono text-white/70 bg-white/[0.04] border border-white/10"
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Workflow automation */}
+                    <div className="glass rounded-2xl p-6 border-white/10">
+                      <div className="flex items-center gap-2.5 mb-4">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-neon-violet/10 border border-neon-violet/30">
+                          <Workflow className="w-4 h-4 text-neon-violet" />
+                        </span>
+                        <h4 className="text-sm font-bold text-white">Workflow Automation</h4>
+                      </div>
+                      <ul className="space-y-2.5">
+                        {AUTOMATION.map((item) => (
+                          <li key={item} className="flex items-start gap-2 text-xs text-white/65 leading-relaxed">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Routing architecture */}
+                    <div className="glass rounded-2xl p-6 border-white/10">
+                      <div className="flex items-center gap-2.5 mb-4">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-neon-fuchsia/10 border border-neon-fuchsia/30">
+                          <Network className="w-4 h-4 text-neon-fuchsia" />
+                        </span>
+                        <h4 className="text-sm font-bold text-white">Routing Architecture</h4>
+                      </div>
+                      <div className="space-y-3">
+                        {ROUTING.map((r, i) => (
+                          <div key={r.step} className="relative pl-5">
+                            {i < ROUTING.length - 1 && (
+                              <span className="absolute left-[7px] top-4 bottom-[-12px] w-px bg-white/10" />
+                            )}
+                            <span className="absolute left-0 top-1.5 h-[15px] w-[15px] rounded-full border-2 border-neon-cyan/50 bg-base-900 flex items-center justify-center">
+                              <span className="h-1.5 w-1.5 rounded-full bg-neon-cyan animate-pulse" />
+                            </span>
+                            <p className="text-xs font-bold text-white">{r.step}</p>
+                            <p className="text-[11px] text-white/50 leading-relaxed">{r.detail}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>
