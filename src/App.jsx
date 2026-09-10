@@ -10,6 +10,7 @@ import ToolsSection from './components/ToolsSection.jsx'
 import Connect from './components/Connect.jsx'
 import ContactSection from './components/ContactSection.jsx'
 import Footer from './components/Footer.jsx'
+import TerminalModal from './components/TerminalModal.jsx'
 
 function BackgroundFX() {
   return (
@@ -68,6 +69,7 @@ export default function App() {
         </main>
         <Footer />
         <ScrollTopBtn />
+        <TerminalModal />
       </div>
     </div>
   )

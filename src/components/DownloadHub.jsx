@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search, Download, Copy, Check, ShieldAlert, FileCode2,
   AlertTriangle, Package, HardDrive, Calendar, X, Lock,
-  Rocket, ExternalLink, KeyRound, UserCheck, Unlock, ShieldCheck,
+  Rocket, ExternalLink, KeyRound, UserCheck, Unlock, ShieldCheck, Eye,
 } from 'lucide-react'
 import { SOFTWARE_ITEMS } from '../data/profile'
 
@@ -162,8 +162,10 @@ function GateModal({ item, onClose }) {
                 <span className="absolute text-2xl font-bold font-mono text-white">{count}</span>
               </div>
 
-              <button
+              <motion.button
                 type="button"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
                 onClick={() => setBot((b) => !b)}
                 className={`w-full flex items-center justify-center gap-3 px-5 py-3.5 rounded-xl border text-sm font-medium transition-all duration-300 ${
                   bot
@@ -180,17 +182,19 @@ function GateModal({ item, onClose }) {
                 </span>
                 I'm not a bot
                 <UserCheck className="w-4 h-4 ml-1 text-neon-violet" />
-              </button>
+              </motion.button>
 
-              <button
+              <motion.button
                 type="button"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
                 onClick={handleUnlock}
                 disabled={!ready}
                 className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-neon-cyan/25 to-neon-violet/25 border border-neon-cyan/50 transition-all duration-300 disabled:opacity-35 disabled:cursor-not-allowed enabled:hover:shadow-[0_0_30px_rgba(0,240,255,0.35)] enabled:hover:-translate-y-0.5"
               >
                 {primaryUrl ? <Rocket className="w-4 h-4 text-neon-cyan" /> : <Unlock className="w-4 h-4 text-neon-cyan" />}
                 {count > 0 ? `Unlocks in ${count}s` : bot ? 'Unlock Download' : 'Verify below to unlock'}
-              </button>
+              </motion.button>
             </div>
           ) : (
             /* STEP 2: download reveal */
@@ -259,13 +263,169 @@ function GateModal({ item, onClose }) {
   )
 }
 
+/* ---------------- CODE PREVIEW MODAL ---------------- */
+
+function highlightBatch(src) {
+  const esc = String(src)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+  return esc
+    .split('\n')
+    .map((line) => {
+      const t = line.trimStart()
+      if (t.startsWith('rem ') || t.startsWith('REM ') || t.startsWith('::')) {
+        return `<span class="text-emerald-400/70">${line}</span>`
+      }
+      return line
+        .replace(/(@echo\s+(?:off|on))/gi, '<span class="text-neon-cyan">$1</span>')
+        .replace(/\b(echo|set|goto|call|if|for|exit)\b(?![\w])/gi, '<span class="text-neon-violet">$1</span>')
+        .replace(/(%[^%\s]+%)/g, '<span class="text-amber-300">$1</span>')
+    })
+    .join('\n')
+}
+
+function CodePreviewModal({ item, onClose }) {
+  const [src, setSrc] = useState('')
+  const [note, setNote] = useState('')
+  const [copied, setCopied] = useState(false)
+  const [loading, setLoading] = useState(Boolean(item.downloadUrl))
+
+  useEffect(() => {
+    let cancelled = false
+    if (isDirectFile(item.downloadUrl, item.type)) {
+      setLoading(true)
+      fetch(item.downloadUrl)
+        .then((r) => r.text())
+        .then((text) => {
+          if (!cancelled) {
+            setSrc(text)
+            setLoading(false)
+          }
+        })
+        .catch(() => {
+          if (!cancelled) {
+            setSrc(placeholderScript(item))
+            setNote('Could not fetch the live file - showing a sample instead.')
+            setLoading(false)
+          }
+        })
+    } else {
+      setSrc(placeholderScript(item))
+      setNote('Live file is hosted on GitHub Releases - showing a sample for review.')
+      setLoading(false)
+    }
+    return () => {
+      cancelled = true
+    }
+  }, [item])
+
+  const copyPreview = async () => {
+    try {
+      await navigator.clipboard.writeText(src)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      /* clipboard unavailable */
+    }
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+      className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0, y: 20 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+        onClick={(e) => e.stopPropagation()}
+        className="relative glass-strong rounded-3xl w-full max-w-2xl overflow-hidden"
+      >
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-black/30">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neon-cyan/10 border border-neon-cyan/30">
+              <FileCode2 className="w-4 h-4 text-neon-cyan" />
+            </span>
+            <div className="min-w-0">
+              <h3 className="text-sm font-bold text-white truncate">{item.name}</h3>
+              <p className="text-[11px] font-mono text-white/40">{item.id}{item.type}</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-white/60 hover:text-white transition-colors ml-3"
+            aria-label="Close preview"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="px-5 py-3 flex flex-wrap items-center gap-3 border-b border-white/5">
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={copyPreview}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold text-white bg-white/[0.05] border border-white/15 hover:border-neon-cyan/50 transition-all duration-300"
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-neon-cyan" />}
+            {copied ? 'Copied!' : 'Copy code'}
+          </motion.button>
+          {isDirectFile(item.downloadUrl, item.type) ? (
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => directDownload(item)}
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-emerald-500/20 to-neon-violet/20 border border-emerald-400/40 hover:shadow-[0_0_25px_rgba(52,211,153,0.25)] transition-all duration-300"
+            >
+              <Download className="w-3.5 h-3.5 text-emerald-400" /> Download {item.type}
+            </motion.button>
+          ) : (
+            <a
+              href={item.releaseUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-emerald-500/20 to-neon-violet/20 border border-emerald-400/40 hover:shadow-[0_0_25px_rgba(52,211,153,0.25)] hover:-translate-y-0.5 transition-all duration-300"
+            >
+              <ExternalLink className="w-3.5 h-3.5 text-emerald-400" /> Get from GitHub
+            </a>
+          )}
+          {note && (
+            <span className="text-[11px] text-amber-300/80 font-mono ml-auto">{note}</span>
+          )}
+        </div>
+
+        <pre
+          className="p-5 text-[13px] font-mono leading-relaxed text-white/90 overflow-auto max-h-[380px] select-text"
+          dangerouslySetInnerHTML={{
+            __html: loading ? '<span class="text-white/40">Loading file...</span>' : highlightBatch(src),
+          }}
+        />
+      </motion.div>
+    </motion.div>
+  )
+}
+
 /* ---------------- CARD ---------------- */
 
 function AssetCard({ item, index }) {
   const color = categoryColors[item.category] || categoryColors.Utilities
   const [expanded, setExpanded] = useState(false)
   const [gateOpen, setGateOpen] = useState(false)
+  const [previewOpen, setPreviewOpen] = useState(false)
   const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.detail && e.detail.id === item.id) setGateOpen(true)
+    }
+    window.addEventListener('open-download-gate', handler)
+    return () => window.removeEventListener('open-download-gate', handler)
+  }, [item.id])
 
   const copyScript = async () => {
     try {
@@ -285,6 +445,8 @@ function AssetCard({ item, index }) {
       layout
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -6, borderColor: 'rgba(0,240,255,0.45)' }}
+      whileTap={{ scale: 0.99 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.5, delay: index * 0.05 }}
       viewport={{ once: true, margin: '-50px' }}
@@ -356,17 +518,31 @@ function AssetCard({ item, index }) {
         </button>
       )}
 
-      <div className="flex items-center justify-between flex-wrap gap-3 mt-auto">
+<div className="flex items-center justify-between flex-wrap gap-3 mt-auto">
         <div className="flex flex-col sm:flex-row gap-2.5">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
             onClick={() => setGateOpen(true)}
             className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 border border-neon-cyan/40 hover:shadow-[0_0_25px_rgba(0,240,255,0.3)] hover:-translate-y-0.5 transition-all duration-300 group"
           >
             <Lock className="w-4 h-4 text-neon-cyan group-hover:animate-pulse" />
             Unlock File
-          </button>
+          </motion.button>
+          {SCRIPT_TYPES.includes(item.type) && (
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setPreviewOpen(true)}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold text-white/80 bg-white/[0.04] border border-white/15 hover:border-neon-cyan/50 hover:text-white transition-all duration-300"
+            >
+              <Eye className="w-4 h-4 text-neon-cyan" /> Preview Script
+            </motion.button>
+          )}
           {item.downloadUrl && SCRIPT_TYPES.includes(item.type) && !item.downloadUrl.includes('github.com') && (
-            <button
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
               onClick={copyScript}
               className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold text-white/80 bg-white/[0.04] border border-white/15 hover:border-neon-violet/50 hover:text-white transition-all duration-300"
             >
@@ -375,7 +551,7 @@ function AssetCard({ item, index }) {
               ) : (
                 <><Copy className="w-4 h-4 text-neon-violet" /> Copy Script</>
               )}
-            </button>
+            </motion.button>
           )}
         </div>
         <span className="text-[11px] font-mono text-white/40 flex items-center gap-1.5">
@@ -386,6 +562,9 @@ function AssetCard({ item, index }) {
       <AnimatePresence>
         {gateOpen && (
           <GateModal item={item} onClose={() => setGateOpen(false)} />
+        )}
+        {previewOpen && (
+          <CodePreviewModal item={item} onClose={() => setPreviewOpen(false)} />
         )}
       </AnimatePresence>
     </motion.div>
