@@ -214,15 +214,20 @@ function GateModal({ item, onClose }) {
           ) : (
             /* STEP 2: download reveal */
             <div className="space-y-4">
-              {primaryUrl && (
+              {hasFunnel && (
                 <a
                   href={primaryUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => {
+                    if (isDirectFile(fileUrlOf(item), typeOf(item))) {
+                      setTimeout(() => directDownload(item), 400)
+                    }
+                  }}
                   className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500/20 to-neon-violet/20 border border-emerald-400/40 hover:shadow-[0_0_25px_rgba(52,211,153,0.3)] hover:-translate-y-0.5 transition-all duration-300"
                 >
                   <Rocket className="w-4 h-4 text-emerald-400" />
-                  {hasFunnel ? 'Open Secure Download Link' : 'Download via GitHub Releases'}
+                  Open Secure Download Link
                   <ExternalLink className="w-4 h-4 text-white/60" />
                 </a>
               )}
