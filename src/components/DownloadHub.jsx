@@ -7,6 +7,8 @@ import {
 } from 'lucide-react'
 import { SOFTWARE_ITEMS } from '../data/profile'
 
+const SCRIPT_TYPES = ['.cmd', '.bat', '.sh', '.ps1']
+
 function placeholderScript(item) {
   return `@echo off
 title ${item.name} v${item.version}
@@ -44,6 +46,18 @@ function triggerDownload(item) {
   URL.revokeObjectURL(url)
 }
 
+const isDirectFile = (url, type) =>
+  Boolean(url) && SCRIPT_TYPES.includes(type) && !url.includes('github.com')
+
+function directDownload(item) {
+  const a = document.createElement('a')
+  a.href = item.downloadUrl
+  a.download = item.downloadName || `${item.id}${item.type}`
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+}
+
 /* ---------------- 2-STEP GATE MODAL ---------------- */
 
 function GateModal({ item, onClose }) {
@@ -78,8 +92,13 @@ function GateModal({ item, onClose }) {
   }
 
   const handleUnlock = () => {
-    if (primaryUrl) {
-      window.open(primaryUrl, '_blank', 'noopener,noreferrer')
+    if (item.funnelUrl && item.funnelUrl.startsWith('http')) {
+      window.open(item.funnelUrl, '_blank', 'noopener,noreferrer')
+    } else if (item.releaseUrl) {
+      window.open(item.releaseUrl, '_blank', 'noopener,noreferrer')
+    }
+    if (isDirectFile(item.downloadUrl, item.type)) {
+      setTimeout(() => directDownload(item), 500)
     }
     setUnlocked(true)
   }
@@ -346,7 +365,7 @@ function AssetCard({ item, index }) {
             <Lock className="w-4 h-4 text-neon-cyan group-hover:animate-pulse" />
             Unlock File
           </button>
-          {item.downloadUrl && (
+          {item.downloadUrl && SCRIPT_TYPES.includes(item.type) && !item.downloadUrl.includes('github.com') && (
             <button
               onClick={copyScript}
               className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold text-white/80 bg-white/[0.04] border border-white/15 hover:border-neon-violet/50 hover:text-white transition-all duration-300"
