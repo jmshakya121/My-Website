@@ -103,6 +103,16 @@ export const SOFTWARE_ITEMS = [
     funnelUrl: ADSTERRA_SMARTLINK,
     directUrl: '/scripts/WindowsActivite.cmd',
   },
+  {
+    id: 'universal-driver-installer',
+    title: 'Universal Hardware Driver Installer',
+    category: 'System Utility',
+    size: '5 MB',
+    description:
+      'Automated driver assistant that scans missing hardware device IDs and installs matching drivers automatically.',
+    funnelUrl: ADSTERRA_SMARTLINK,
+    directUrl: '/scripts/Universal_Driver_Installer.zip',
+  },
 ]
 
 /* Hire / client intake configuration */
