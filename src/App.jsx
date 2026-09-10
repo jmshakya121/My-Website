@@ -6,6 +6,9 @@ import Hero from './components/Hero.jsx'
 import FeatureOverview from './components/FeatureOverview.jsx'
 import DownloadHub from './components/DownloadHub.jsx'
 import ToolsSection from './components/ToolsSection.jsx'
+import Projects from './components/Projects.jsx'
+import Connect from './components/Connect.jsx'
+import ContactSection from './components/ContactSection.jsx'
 import Footer from './components/Footer.jsx'
 import TerminalModal from './components/TerminalModal.jsx'
 import DynamicBackground from './components/three/DynamicBackground.jsx'
@@ -63,49 +66,40 @@ export default function App() {
   const [pendingGate, setPendingGate] = useState(null)
   const skipTopReset = useRef(false)
 
-  const goToAnchor = useCallback((href) => {
+  const handleNavigate = useCallback((next) => {
+    setView(next)
     skipTopReset.current = true
-    setView('dashboard')
     requestAnimationFrame(() => {
-      const el = document.querySelector(href)
-      if (el) el.scrollIntoView({ behavior: 'smooth' })
+      skipTopReset.current = false
     })
   }, [])
 
   useEffect(() => {
+    if (skipTopReset.current) return
+    window.scrollTo(0, 0)
+  }, [view])
+
+  useEffect(() => {
     const onNavigate = (e) => {
-      if (e.detail) setView(e.detail)
-    }
-    const onAnchor = (e) => {
-      if (e.detail) goToAnchor(e.detail)
+      if (e.detail) handleNavigate(e.detail)
     }
     const onOpenSoftwareDownload = (e) => {
-      setView('software')
+      handleNavigate('software')
       setPendingGate(e.detail?.id || null)
     }
     window.addEventListener('navigate-view', onNavigate)
-    window.addEventListener('navigate-anchor', onAnchor)
     window.addEventListener('open-software-download', onOpenSoftwareDownload)
     return () => {
       window.removeEventListener('navigate-view', onNavigate)
-      window.removeEventListener('navigate-anchor', onAnchor)
       window.removeEventListener('open-software-download', onOpenSoftwareDownload)
     }
-  }, [goToAnchor])
-
-  useEffect(() => {
-    if (skipTopReset.current) {
-      skipTopReset.current = false
-      return
-    }
-    window.scrollTo(0, 0)
-  }, [view])
+  }, [handleNavigate])
 
   return (
     <div className="relative font-sans text-white antialiased selection:bg-neon-cyan/30 themed">
       <BackgroundFX theme={theme} />
       <div className="relative z-10">
-        <Navbar view={view} onNavigate={setView} onAnchor={goToAnchor} theme={theme} toggleTheme={toggleTheme} />
+        <Navbar view={view} onNavigate={handleNavigate} theme={theme} toggleTheme={toggleTheme} />
         <main>
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
@@ -128,6 +122,9 @@ export default function App() {
                 />
               )}
               {view === 'tools' && <ToolsSection />}
+              {view === 'projects' && <Projects />}
+              {view === 'connect' && <Connect />}
+              {view === 'contact' && <ContactSection />}
             </motion.div>
           </AnimatePresence>
         </main>

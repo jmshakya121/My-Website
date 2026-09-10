@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import {
   Download, Wrench, Rocket, ShieldCheck, ShieldAlert,
   Send, Mail, Copy, Check, MessageCircle, ExternalLink,
-  Youtube, Instagram, Facebook, Github, Zap, Package, HardDrive, Crown,
+  Youtube, Instagram, Facebook, Github, Zap, Package, HardDrive, Crown, FolderKanban,
 } from 'lucide-react'
 import TiltCard from './TiltCard.jsx'
 import {
@@ -138,13 +138,20 @@ function ProjectCard() {
           </div>
         ))}
       </div>
+      <button
+        type="button"
+        onClick={() => navigate('projects')}
+        className="btn-primary text-sm px-5 py-2.5 w-full justify-center"
+      >
+        <FolderKanban className="w-4 h-4" /> View All Projects
+      </button>
       <a
         href={PROJECTS.spotlight.liveUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="btn-secondary text-sm px-5 py-2.5 w-full justify-center"
+        className="inline-flex items-center justify-center gap-1.5 mt-2.5 text-xs font-mono text-neon-cyan/80 hover:text-neon-cyan transition-colors"
       >
-        Visit Live Demo <ExternalLink className="w-4 h-4" />
+        Visit Live Demo <ExternalLink className="w-3.5 h-3.5" />
       </a>
     </CardShell>
   )
@@ -218,6 +225,13 @@ function ConnectCard() {
             </a>
           ))}
       </div>
+      <button
+        type="button"
+        onClick={() => navigate('connect')}
+        className="btn-secondary text-sm px-5 py-2.5 w-full justify-center mt-4"
+      >
+        <Youtube className="w-4 h-4" /> Open Connect
+      </button>
     </CardShell>
   )
 }
@@ -344,6 +358,13 @@ function HireCard() {
           {copiedEmail ? 'Copied!' : 'Copy email'}
         </button>
       </div>
+      <button
+        type="button"
+        onClick={() => navigate('contact')}
+        className="inline-flex items-center justify-center gap-1.5 mt-3 text-xs font-mono text-neon-cyan/80 hover:text-neon-cyan transition-colors"
+      >
+        Open full contact page <Send className="w-3 h-3" />
+      </button>
     </CardShell>
   )
 }

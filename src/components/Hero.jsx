@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import {
-  Mail, ChevronDown, ShieldCheck,
+  Mail, ShieldCheck,
   Rocket, FolderKanban, Eye, Zap, Download, Package,
 } from 'lucide-react'
 import { PROFILE, SITE_METRICS } from '../data/profile'
@@ -21,9 +21,9 @@ const HIGHLIGHTS = [
 
 export default function Hero() {
   return (
-    <section id="dashboard" className="relative min-h-screen flex items-center overflow-hidden">
+    <section id="dashboard" className="relative overflow-hidden">
       {/* Gradient overlays — use CSS var bg colors */}
-      <div className="absolute inset-0 bg-gradient-to-b from-body/60 via-transparent to-body" />
+      <div className="absolute inset-0 bg-gradient-to-b from-body/40 via-transparent to-transparent" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(168,85,247,0.1),transparent_60%)]" />
 
       {/* Content */}
@@ -72,12 +72,20 @@ export default function Hero() {
               >
                 <Download className="w-5 h-5" /> Explore Free Tools
               </button>
-              <a href="#hire" className="btn-secondary">
-                Hire Me / Request a Project
-              </a>
-              <a href="#projects" className="btn-secondary">
-                View Projects
-              </a>
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent('navigate-view', { detail: 'contact' }))}
+                className="btn-secondary"
+              >
+                <Mail className="w-5 h-5" /> Hire Me / Request a Project
+              </button>
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent('navigate-view', { detail: 'projects' }))}
+                className="btn-secondary"
+              >
+                <FolderKanban className="w-5 h-5" /> View Projects
+              </button>
             </div>
 
             <div className="flex items-center gap-3 text-xs font-mono">
@@ -154,7 +162,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-16 max-w-4xl mx-auto"
+          className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-12 max-w-4xl mx-auto"
         >
           {METRICS.map(({ icon: Icon, label, value }, i) => (
             <motion.div
@@ -170,13 +178,6 @@ export default function Hero() {
             </motion.div>
           ))}
         </motion.div>
-
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
-          <span className="text-[10px] font-mono text-white/40 uppercase tracking-widest">Scroll</span>
-          <a href="#features" className="text-neon-cyan animate-bounce">
-            <ChevronDown className="w-6 h-6" />
-          </a>
-        </div>
       </div>
     </section>
   )

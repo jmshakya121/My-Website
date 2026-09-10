@@ -185,7 +185,7 @@ function TiltCard() {
 
 export default function Projects() {
   return (
-    <section id="projects" className="relative py-32 overflow-hidden">
+    <section id="projects" className="relative pt-28 pb-24 overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(0,240,255,0.06),transparent_50%)]" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
         <motion.div

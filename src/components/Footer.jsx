@@ -14,12 +14,12 @@ const socials = [
 ]
 
 const quickLinks = [
-  { label: 'Dashboard', type: 'nav', target: 'dashboard' },
-  { label: 'Projects', type: 'anchor', href: '#projects' },
-  { label: 'Software Utilities', type: 'nav', target: 'software' },
-  { label: 'Project Tools', type: 'nav', target: 'tools' },
-  { label: 'Social Connect', type: 'anchor', href: '#connect' },
-  { label: 'Hire Me', type: 'anchor', href: '#hire' },
+  { label: 'Dashboard', target: 'dashboard' },
+  { label: 'Software Utilities', target: 'software' },
+  { label: 'Project Tools', target: 'tools' },
+  { label: 'Projects', target: 'projects' },
+  { label: 'Connect', target: 'connect' },
+  { label: 'Contact', target: 'contact' },
 ]
 
 export default function Footer() {
@@ -78,9 +78,7 @@ export default function Footer() {
                   <button
                     type="button"
                     onClick={() =>
-                      link.type === 'nav'
-                        ? window.dispatchEvent(new CustomEvent('navigate-view', { detail: link.target }))
-                        : window.dispatchEvent(new CustomEvent('navigate-anchor', { detail: link.href }))
+                      window.dispatchEvent(new CustomEvent('navigate-view', { detail: link.target }))
                     }
                     className="text-sm text-white/50 hover:text-neon-cyan transition-colors duration-300 flex items-center gap-2 group"
                   >
