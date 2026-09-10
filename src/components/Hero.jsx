@@ -27,7 +27,7 @@ export default function Hero() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(168,85,247,0.1),transparent_60%)]" />
 
       {/* Content */}
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-24 pb-14 w-full">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-14 w-full">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left column */}
           <motion.div
@@ -41,17 +41,16 @@ export default function Hero() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-cyan opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-neon-cyan" />
               </span>
-              <span className="text-xs font-mono text-neon-cyan">// Free Utility Platform</span>
+              <span className="text-xs font-mono text-neon-cyan">// IT HUB Utility Platform</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-white leading-[1.1] mb-5">
-              Free Windows Tools{' '}
-              <span className="neon-text">You Can Trust</span>
+              IT HUB <span className="neon-text">Utility Engine</span>
             </h1>
 
             <p className="text-lg sm:text-xl text-white/70 leading-relaxed mb-4 max-w-xl">
-              Download verified system utilities, activators, and drivers —{' '}
-              <span className="text-neon-cyan">100% free</span>, source-visible, and safe.
+              Curated system scripts, driver packs, and power-user utilities{' '}
+              <span className="text-neon-cyan">maintained by IT HUB</span>.
             </p>
 
             {/* Feature highlights */}

@@ -43,7 +43,7 @@ export default function Footer() {
                 <Rocket className="w-5 h-5 text-neon-cyan" />
               </div>
               <div className="leading-tight">
-                <h3 className="font-mono font-bold text-white text-lg">JM<span className="text-neon-cyan">_</span></h3>
+                <h3 className="font-mono font-bold text-white text-lg">IT<span className="text-neon-cyan">_HUB</span></h3>
                 <p className="text-[10px] font-mono text-white/40 uppercase tracking-widest">{PROFILE.domain}</p>
               </div>
             </div>
