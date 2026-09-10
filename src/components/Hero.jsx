@@ -1,22 +1,20 @@
 import { motion } from 'framer-motion'
 import {
   Mail, ShieldCheck,
-  GraduationCap, BadgeCheck, Terminal, Award, Download, FolderKanban,
+  GraduationCap, MapPin, Terminal, Rocket, Download, FolderKanban,
 } from 'lucide-react'
 import { PROFILE, SITE_METRICS } from '../data/profile'
 
 const METRICS = [
+  { icon: Rocket, label: 'Active Projects', value: SITE_METRICS.projects },
+  { icon: Terminal, label: 'System Scripts', value: SITE_METRICS.tools },
+  { icon: ShieldCheck, label: 'Verified Builds', value: SITE_METRICS.verified },
   { icon: Download, label: 'Downloads', value: SITE_METRICS.downloads },
-  { icon: FolderKanban, label: 'Active Tools', value: SITE_METRICS.tools },
-  { icon: Terminal, label: 'Scripts', value: SITE_METRICS.categories },
-  { icon: ShieldCheck, label: 'Verified', value: SITE_METRICS.verified },
 ]
 
 const HIGHLIGHTS = [
-  { icon: GraduationCap, text: 'CS Undergrad' },
-  { icon: BadgeCheck, text: 'Vercel Verified' },
-  { icon: Terminal, text: 'Custom Scripting' },
-  { icon: Award, text: '+2 CS Graduate' },
+  { icon: MapPin, text: `${PROFILE.location} (${PROFILE.postalCode})` },
+  { icon: GraduationCap, text: '+2 Computer Science  |  CS Undergrad' },
 ]
 
 export default function Hero() {
@@ -41,20 +39,19 @@ export default function Hero() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-cyan opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-neon-cyan" />
               </span>
-              <span className="text-xs font-mono text-neon-cyan">// CS Developer & Systems Engineer</span>
+              <span className="text-xs font-mono text-neon-cyan">// Software Developer & Systems Engineer</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-white leading-[1.1] mb-5">
               <span className="neon-text">{PROFILE.name}</span>
               <span className="block text-2xl sm:text-3xl lg:text-4xl text-white/90 mt-2">
-                CS Developer &amp; Systems Engineer
+                Computer Science Developer &amp; Systems Engineer
               </span>
             </h1>
 
             <p className="text-lg sm:text-xl text-white/70 leading-relaxed mb-4 max-w-xl">
-              Based in {PROFILE.location} ({PROFILE.postalCode}). Building high-performance
-              ticketing solutions, web applications, and{' '}
-              <span className="text-neon-cyan">system automation tools</span>.
+              I design high-performance ticketing solutions, web applications, and system
+              automation tools — clean code, modern stacks, and measurable results.
             </p>
 
             {/* Feature highlights */}
@@ -73,14 +70,7 @@ export default function Hero() {
                 onClick={() => window.dispatchEvent(new CustomEvent('navigate-view', { detail: 'software' }))}
                 className="btn-primary"
               >
-                <Download className="w-5 h-5" /> Explore Free Tools
-              </button>
-              <button
-                type="button"
-                onClick={() => window.dispatchEvent(new CustomEvent('navigate-view', { detail: 'contact' }))}
-                className="btn-secondary"
-              >
-                <Mail className="w-5 h-5" /> Hire Me / Request a Project
+                <Download className="w-5 h-5" /> Explore Software
               </button>
               <button
                 type="button"

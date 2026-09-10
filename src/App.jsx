@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowUp } from 'lucide-react'
 import Navbar from './components/Navbar.jsx'
 import Hero from './components/Hero.jsx'
-import FeatureOverview from './components/FeatureOverview.jsx'
 import DownloadHub from './components/DownloadHub.jsx'
 import ToolsSection from './components/ToolsSection.jsx'
 import Projects from './components/Projects.jsx'
@@ -110,10 +109,7 @@ export default function App() {
               transition={TAB_TRANSITION}
             >
               {view === 'dashboard' && (
-                <>
-                  <Hero />
-                  <FeatureOverview />
-                </>
+                <Hero />
               )}
               {view === 'software' && (
                 <DownloadHub

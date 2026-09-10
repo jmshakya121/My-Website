@@ -116,6 +116,7 @@ export const SOFTWARE_ITEMS = [
 ]
 
 export const SITE_METRICS = {
+  projects: '3+',
   downloads: '50K+',
   tools: '6',
   categories: '4',
