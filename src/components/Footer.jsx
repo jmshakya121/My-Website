@@ -16,7 +16,6 @@ const socials = [
 const quickLinks = [
   { label: 'Dashboard', target: 'dashboard' },
   { label: 'Software Utilities', target: 'software' },
-  { label: 'Project Tools', target: 'tools' },
   { label: 'Projects', target: 'projects' },
   { label: 'Connect', target: 'connect' },
   { label: 'Contact', target: 'contact' },

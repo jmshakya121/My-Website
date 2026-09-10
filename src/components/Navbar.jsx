@@ -5,7 +5,6 @@ import { PROFILE } from '../data/profile'
 const TABS = [
   { key: 'dashboard', label: 'Dashboard' },
   { key: 'software', label: 'Software Utilities' },
-  { key: 'tools', label: 'Project Tools' },
   { key: 'projects', label: 'Projects' },
   { key: 'connect', label: 'Connect' },
   { key: 'contact', label: 'Contact' },

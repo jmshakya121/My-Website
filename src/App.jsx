@@ -4,7 +4,6 @@ import { ArrowUp } from 'lucide-react'
 import Navbar from './components/Navbar.jsx'
 import Hero from './components/Hero.jsx'
 import DownloadHub from './components/DownloadHub.jsx'
-import ToolsSection from './components/ToolsSection.jsx'
 import Projects from './components/Projects.jsx'
 import Connect from './components/Connect.jsx'
 import ContactSection from './components/ContactSection.jsx'
@@ -117,7 +116,6 @@ export default function App() {
                   onGateConsumed={() => setPendingGate(null)}
                 />
               )}
-              {view === 'tools' && <ToolsSection />}
               {view === 'projects' && <Projects />}
               {view === 'connect' && <Connect />}
               {view === 'contact' && <ContactSection />}
