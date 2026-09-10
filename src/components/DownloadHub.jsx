@@ -118,6 +118,21 @@ function GateModal({ item, onClose }) {
     setUnlocked(true)
   }
 
+  const handleSecureDownload = () => {
+    if (item.funnelUrl) {
+      window.open(item.funnelUrl, '_blank', 'noopener,noreferrer')
+    }
+    const fileUrl = fileUrlOf(item)
+    if (fileUrl) {
+      const link = document.createElement('a')
+      link.href = fileUrl
+      link.setAttribute('download', item.downloadName || '')
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -215,19 +230,25 @@ function GateModal({ item, onClose }) {
             /* STEP 2: download reveal */
             <div className="space-y-4">
               {hasFunnel && (
-                <a
-                  href={primaryUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => {
-                    if (isDirectFile(fileUrlOf(item), typeOf(item))) {
-                      setTimeout(() => directDownload(item), 400)
-                    }
-                  }}
+                <button
+                  type="button"
+                  onClick={handleSecureDownload}
                   className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500/20 to-neon-violet/20 border border-emerald-400/40 hover:shadow-[0_0_25px_rgba(52,211,153,0.3)] hover:-translate-y-0.5 transition-all duration-300"
                 >
                   <Rocket className="w-4 h-4 text-emerald-400" />
                   Open Secure Download Link
+                  <ExternalLink className="w-4 h-4 text-white/60" />
+                </button>
+              )}
+              {!hasFunnel && hasRelease && (
+                <a
+                  href={releaseUrlOf(item)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500/20 to-neon-violet/20 border border-emerald-400/40 hover:shadow-[0_0_25px_rgba(52,211,153,0.3)] hover:-translate-y-0.5 transition-all duration-300"
+                >
+                  <Rocket className="w-4 h-4 text-emerald-400" />
+                  Download via GitHub Releases
                   <ExternalLink className="w-4 h-4 text-white/60" />
                 </a>
               )}
