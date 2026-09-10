@@ -1,27 +1,25 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowUp } from 'lucide-react'
 import Navbar from './components/Navbar.jsx'
 import Hero from './components/Hero.jsx'
-import Skills from './components/Skills.jsx'
-import Projects from './components/Projects.jsx'
+import FeatureOverview from './components/FeatureOverview.jsx'
 import DownloadHub from './components/DownloadHub.jsx'
 import ToolsSection from './components/ToolsSection.jsx'
-import Connect from './components/Connect.jsx'
-import ContactSection from './components/ContactSection.jsx'
 import Footer from './components/Footer.jsx'
 import TerminalModal from './components/TerminalModal.jsx'
+import DynamicBackground from './components/three/DynamicBackground.jsx'
+import useTheme from './hooks/useTheme'
 
-function BackgroundFX() {
+function BackgroundFX({ theme }) {
   return (
-    <>
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-grid-pattern opacity-40" />
-        <div className="absolute top-0 -left-40 w-[500px] h-[500px] bg-neon-cyan/5 rounded-full blur-[120px]" />
-        <div className="absolute top-1/3 -right-40 w-[500px] h-[500px] bg-neon-violet/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-neon-fuchsia/5 rounded-full blur-[120px]" />
-      </div>
-    </>
+    <div className="fixed inset-0 z-0 pointer-events-none">
+      <DynamicBackground theme={theme} />
+      <div className="absolute inset-0 bg-grid-pattern opacity-25" />
+      <div className="absolute top-0 -left-40 w-[500px] h-[500px] bg-neon-cyan/5 rounded-full blur-[120px]" />
+      <div className="absolute top-1/3 -right-40 w-[500px] h-[500px] bg-neon-violet/5 rounded-full blur-[120px]" />
+      <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-neon-fuchsia/5 rounded-full blur-[120px]" />
+    </div>
   )
 }
 
@@ -52,29 +50,21 @@ function ScrollTopBtn() {
   )
 }
 
-const VIEWS = {
-  dashboard: (
-    <>
-      <Hero />
-      <Skills />
-      <Projects />
-      <Connect />
-      <ContactSection />
-    </>
-  ),
-  software: null, // rendered via <DownloadHub> below (needs props)
-  tools: (
-    <>
-      <ToolsSection />
-    </>
-  ),
+const TAB_TRANSITION = {
+  type: 'spring',
+  stiffness: 260,
+  damping: 30,
+  mass: 0.9,
 }
 
 export default function App() {
+  const { theme, toggleTheme } = useTheme()
   const [view, setView] = useState('dashboard')
   const [pendingGate, setPendingGate] = useState(null)
+  const skipTopReset = useRef(false)
 
   const goToAnchor = useCallback((href) => {
+    skipTopReset.current = true
     setView('dashboard')
     requestAnimationFrame(() => {
       const el = document.querySelector(href)
@@ -103,19 +93,43 @@ export default function App() {
     }
   }, [goToAnchor])
 
+  useEffect(() => {
+    if (skipTopReset.current) {
+      skipTopReset.current = false
+      return
+    }
+    window.scrollTo(0, 0)
+  }, [view])
+
   return (
     <div className="relative font-sans text-white antialiased selection:bg-neon-cyan/30 themed">
-      <BackgroundFX />
+      <BackgroundFX theme={theme} />
       <div className="relative z-10">
-        <Navbar view={view} onNavigate={setView} onAnchor={goToAnchor} />
+        <Navbar view={view} onNavigate={setView} onAnchor={goToAnchor} theme={theme} toggleTheme={toggleTheme} />
         <main>
-          {VIEWS[view] || null}
-          {view === 'software' && (
-            <DownloadHub
-              pendingGate={pendingGate}
-              onGateConsumed={() => setPendingGate(null)}
-            />
-          )}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={view}
+              initial={{ opacity: 0, y: 26, scale: 0.995 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -22, scale: 0.995 }}
+              transition={TAB_TRANSITION}
+            >
+              {view === 'dashboard' && (
+                <>
+                  <Hero />
+                  <FeatureOverview />
+                </>
+              )}
+              {view === 'software' && (
+                <DownloadHub
+                  pendingGate={pendingGate}
+                  onGateConsumed={() => setPendingGate(null)}
+                />
+              )}
+              {view === 'tools' && <ToolsSection />}
+            </motion.div>
+          </AnimatePresence>
         </main>
         <Footer />
         <ScrollTopBtn />

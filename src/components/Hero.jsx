@@ -1,24 +1,9 @@
-import { lazy, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import {
-  Mail, ChevronDown, Loader2, ShieldCheck,
+  Mail, ChevronDown, ShieldCheck,
   Rocket, FolderKanban, Eye, Zap, Download, Package,
 } from 'lucide-react'
 import { PROFILE, SITE_METRICS } from '../data/profile'
-
-const HeroScene = lazy(() => import('./three/HeroScene.jsx'))
-
-function SceneFallback() {
-  return (
-    <div className="w-full h-full flex items-center justify-center">
-      <div className="relative flex items-center justify-center">
-        <div className="absolute w-24 h-24 rounded-full border border-neon-cyan/30 animate-[spin_3s_linear_infinite]" />
-        <div className="absolute w-36 h-36 rounded-full border border-dashed border-neon-violet/30 animate-[spin_5s_linear_infinite_reverse]" />
-        <Loader2 className="w-8 h-8 text-neon-cyan animate-spin" />
-      </div>
-    </div>
-  )
-}
 
 const METRICS = [
   { icon: Download, label: 'Downloads', value: SITE_METRICS.downloads },
@@ -37,13 +22,6 @@ const HIGHLIGHTS = [
 export default function Hero() {
   return (
     <section id="dashboard" className="relative min-h-screen flex items-center overflow-hidden">
-      {/* 3D Background */}
-      <div className="absolute inset-0">
-        <Suspense fallback={<SceneFallback />}>
-          <HeroScene />
-        </Suspense>
-      </div>
-
       {/* Gradient overlays — use CSS var bg colors */}
       <div className="absolute inset-0 bg-gradient-to-b from-body/60 via-transparent to-body" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(168,85,247,0.1),transparent_60%)]" />
@@ -195,7 +173,7 @@ export default function Hero() {
 
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
           <span className="text-[10px] font-mono text-white/40 uppercase tracking-widest">Scroll</span>
-          <a href="#skills" className="text-neon-cyan animate-bounce">
+          <a href="#features" className="text-neon-cyan animate-bounce">
             <ChevronDown className="w-6 h-6" />
           </a>
         </div>

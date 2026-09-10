@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Menu, X, Sparkles, Terminal, Sun, Moon } from 'lucide-react'
 import { PROFILE } from '../data/profile'
-import useTheme from '../hooks/useTheme'
 
 const PRIMARY_TABS = [
   { key: 'dashboard', label: 'Dashboard' },
@@ -15,10 +14,9 @@ const SECONDARY_LINKS = [
   { label: 'Contact', href: '#hire' },
 ]
 
-export default function Navbar({ view = 'dashboard', onNavigate, onAnchor }) {
+export default function Navbar({ view = 'dashboard', onNavigate, onAnchor, theme = 'dark', toggleTheme }) {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
-  const { theme, toggleTheme } = useTheme()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30)

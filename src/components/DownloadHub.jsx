@@ -7,6 +7,7 @@ import {
   Clock, Shield, Wrench, Database, Wifi, Zap,
 } from 'lucide-react'
 import { SOFTWARE_ITEMS } from '../data/profile'
+import TiltCard from './TiltCard.jsx'
 
 const SCRIPT_TYPES = ['.cmd', '.bat', '.sh', '.ps1']
 
@@ -533,7 +534,8 @@ function AssetCard({ item, index, forceOpen }) {
       viewport={{ once: true, margin: '-50px' }}
       className="group relative glass rounded-2xl p-6 hover:border-neon-cyan/40 hover:shadow-[0_0_40px_rgba(0,240,255,0.08)] transition-all duration-500"
     >
-      <div className="flex items-start justify-between mb-4">
+      <TiltCard className="flex flex-col h-full">
+        <div className="flex items-start justify-between mb-4">
         <div className={`w-12 h-12 rounded-xl border ${color.border} ${color.bg} flex items-center justify-center relative overflow-hidden`}>
           <CatIcon className={`w-6 h-6 ${color.text}`} />
           <span className="absolute -top-1 -right-1 w-4 h-4 bg-neon-fuchsia blur-sm opacity-60" />
@@ -642,6 +644,7 @@ function AssetCard({ item, index, forceOpen }) {
           <ShieldCheck className="w-3 h-3" /> secure link
         </span>
       </div>
+      </TiltCard>
 
       <AnimatePresence>
         {gateOpen && (
