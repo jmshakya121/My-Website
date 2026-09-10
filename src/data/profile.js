@@ -25,6 +25,7 @@ export const PROFILE = {
     youtube: 'https://www.youtube.com/@J_EMS_SH',
     instagram: 'https://www.instagram.com/__j_e_m_s___/',
     facebook: 'https://www.facebook.com/jm.shakya.9',
+    telegram: '', // TODO: add your Telegram link, e.g. https://t.me/yourusername
     linkedin: '', // TODO: add your LinkedIn profile URL
   },
   github: 'https://github.com/jmshakya121/My-Website',

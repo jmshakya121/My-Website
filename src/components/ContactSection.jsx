@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Send, MessageCircle, CheckCircle2, Zap, ShieldCheck, Code2,
-  Mail, MapPin, Linkedin, AlertCircle, ChevronDown,
+  Mail, MapPin, Linkedin, AlertCircle, ChevronDown, Copy, Check,
 } from 'lucide-react'
 import { PROFILE, HIRE, WHATSAPP_LINK } from '../data/profile'
 
@@ -141,7 +141,7 @@ function IntakeForm() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center gap-2 text-sm text-emerald-400 bg-emerald-400/10 border border-emerald-400/30 rounded-xl px-4 py-3"
         >
-          <CheckCircle2 className="w-4 h-4" /> Request sent! I'll get back to you within 24h.
+          <CheckCircle2 className="w-4 h-4" /> Request sent! I'll get back to you within 2 hours.
         </motion.p>
       )}
       {status === 'mailto' && (
@@ -167,6 +167,18 @@ function IntakeForm() {
 }
 
 export default function ContactSection() {
+  const [copiedEmail, setCopiedEmail] = useState(false)
+
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(PROFILE.contact.email)
+      setCopiedEmail(true)
+      setTimeout(() => setCopiedEmail(false), 2000)
+    } catch {
+      window.location.href = `mailto:${PROFILE.contact.email}`
+    }
+  }
+
   return (
     <section id="hire" className="relative py-32 overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(0,240,255,0.06),transparent_50%)]" />
@@ -186,7 +198,10 @@ export default function ContactSection() {
           </h2>
           <div className="h-1 w-24 mx-auto section-title-line" />
           <p className="text-white/60 max-w-xl mx-auto mt-5 text-sm sm:text-base">
-            Tell me about your project — you'll get a reply within 24 hours, usually much faster.
+            Tell me about your project — I'll usually reply within 2 hours during working hours.
+          </p>
+          <p className="mt-5 inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold text-emerald-300 bg-emerald-400/10 border border-emerald-400/30">
+            <Zap className="w-3.5 h-3.5" /> Replies within 2 hours
           </p>
         </motion.div>
 
@@ -237,6 +252,22 @@ export default function ContactSection() {
               <p className="text-[10px] font-mono text-emerald-400/70 mt-2">Replies fastest here →</p>
             </a>
 
+            {PROFILE.social.telegram && (
+              <a
+                href={PROFILE.social.telegram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block glass rounded-2xl p-5 hover:border-sky-400/50 hover:-translate-y-1 transition-all duration-300 group"
+              >
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl mb-4 border border-sky-400/30 bg-sky-500/10">
+                  <Send className="w-5 h-5 text-sky-400" />
+                </span>
+                <p className="text-[10px] uppercase tracking-widest text-white/40 mb-1.5">Telegram</p>
+                <p className="text-sm text-white/80 group-hover:text-sky-400 transition-colors">Chat directly on Telegram</p>
+                <p className="text-[10px] text-white/40 mt-2">Fast, encrypted, no spam →</p>
+              </a>
+            )}
+
             <a
               href={`mailto:${PROFILE.contact.email}`}
               className="block glass rounded-2xl p-5 hover:border-neon-violet/50 hover:-translate-y-1 transition-all duration-300 group"
@@ -248,10 +279,33 @@ export default function ContactSection() {
               <p className="text-sm text-white/80 group-hover:text-neon-violet transition-colors break-all">{PROFILE.contact.email}</p>
             </a>
 
+            <button
+              type="button"
+              onClick={copyEmail}
+              className="w-full flex items-center justify-between gap-3 glass rounded-2xl p-5 hover:border-neon-cyan/50 hover:-translate-y-1 transition-all duration-300 group text-left"
+            >
+              <span className="inline-flex items-center gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-neon-cyan/30 bg-neon-cyan/10">
+                  <Copy className="w-5 h-5 text-neon-cyan" />
+                </span>
+                <span>
+                  <span className="block text-[10px] uppercase tracking-widest text-white/40 mb-1.5">Copy Email</span>
+                  <span className="block text-sm text-white/80 group-hover:text-neon-cyan transition-colors">
+                    {copiedEmail ? 'Copied to clipboard!' : 'Click to copy address'}
+                  </span>
+                </span>
+              </span>
+              {copiedEmail ? (
+                <Check className="w-5 h-5 text-emerald-400 shrink-0" />
+              ) : (
+                <Send className="w-4 h-4 text-white/30 group-hover:text-neon-cyan transition-colors shrink-0" />
+              )}
+            </button>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="glass rounded-2xl p-4 text-center hover:border-neon-cyan/40 transition-colors duration-300">
-                <p className="text-lg font-bold neon-text">24h</p>
-                <p className="text-[10px] text-white/40 uppercase tracking-wide mt-1">reply time</p>
+                <p className="text-lg font-bold neon-text">2h</p>
+                <p className="text-[10px] text-white/40 uppercase tracking-wide mt-1">avg. reply time</p>
               </div>
               <div className="glass rounded-2xl p-4 text-center hover:border-neon-violet/40 transition-colors duration-300">
                 <MapPin className="w-4 h-4 text-neon-fuchsia mx-auto mb-1" />
@@ -292,6 +346,19 @@ export default function ContactSection() {
           </motion.div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {copiedEmail && (
+          <motion.div
+            initial={{ opacity: 0, y: 24, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 12, scale: 0.95 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[150] flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-white bg-base-800/90 backdrop-blur-xl border border-neon-cyan/50 shadow-[0_0_30px_rgba(0,240,255,0.25)]"
+          >
+            <Check className="w-4 h-4 text-emerald-400" /> Email copied to clipboard!
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   )
 }

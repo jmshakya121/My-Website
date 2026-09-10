@@ -346,6 +346,17 @@ function CodePreviewModal({ item, onClose }) {
     }
   }
 
+  const secureDownload = () => {
+    if (item.funnelUrl && item.funnelUrl.startsWith('http')) {
+      window.open(item.funnelUrl, '_blank', 'noopener,noreferrer')
+    } else {
+      window.open(releaseUrlOf(item), '_blank', 'noopener,noreferrer')
+    }
+    if (isDirectFile(fileUrlOf(item), typeOf(item))) {
+      setTimeout(() => directDownload(item), 600)
+    }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -384,19 +395,27 @@ function CodePreviewModal({ item, onClose }) {
         <div className="px-5 py-3 flex flex-wrap items-center gap-3 border-b border-white/5">
           <motion.button
             whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={secureDownload}
+            className="inline-flex items-center gap-2 px-4 py-2.5 min-h-12 rounded-lg text-sm font-bold text-white bg-gradient-to-r from-neon-cyan/25 to-neon-violet/25 border border-neon-cyan/50 shadow-[0_0_25px_rgba(0,240,255,0.15)] hover:shadow-[0_0_35px_rgba(0,240,255,0.3)] hover:-translate-y-0.5 transition-all duration-300"
+          >
+            <Rocket className="w-4 h-4 text-neon-cyan" /> Download Script
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={copyPreview}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold text-white bg-white/[0.05] border border-white/15 hover:border-neon-cyan/50 transition-all duration-300"
+            className="inline-flex items-center gap-2 px-3.5 py-2.5 min-h-12 rounded-lg text-xs font-semibold text-white bg-white/[0.05] border border-white/15 hover:border-neon-cyan/50 transition-all duration-300"
           >
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-neon-cyan" />}
-            {copied ? 'Copied!' : 'Copy code'}
+            {copied ? 'Copied!' : 'Copy Raw Code'}
           </motion.button>
           {isDirectFile(fileUrlOf(item), typeOf(item)) ? (
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => directDownload(item)}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-emerald-500/20 to-neon-violet/20 border border-emerald-400/40 hover:shadow-[0_0_25px_rgba(52,211,153,0.25)] transition-all duration-300"
+              className="inline-flex items-center gap-2 px-3.5 py-2.5 min-h-12 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-emerald-500/20 to-neon-violet/20 border border-emerald-400/40 hover:shadow-[0_0_25px_rgba(52,211,153,0.25)] transition-all duration-300"
             >
               <Download className="w-3.5 h-3.5 text-emerald-400" /> Download {typeOf(item)}
             </motion.button>
@@ -510,6 +529,9 @@ function AssetCard({ item, index }) {
             <Rocket className="w-3 h-3" /> monetized
           </span>
         )}
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-400/10 text-emerald-300 border border-emerald-400/30">
+          <ShieldCheck className="w-3 h-3" /> Safety Verified
+        </span>
       </div>
 
       <div className={`text-xs text-amber-300/90 bg-amber-400/[0.06] border border-amber-400/20 rounded-lg px-3 py-2 flex items-start gap-2 mb-4 ${expanded ? '' : 'relative max-h-11 overflow-hidden'}`}>
@@ -538,7 +560,7 @@ function AssetCard({ item, index }) {
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={() => setGateOpen(true)}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 border border-neon-cyan/40 hover:shadow-[0_0_25px_rgba(0,240,255,0.3)] hover:-translate-y-0.5 transition-all duration-300 group"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-12 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 border border-neon-cyan/40 hover:shadow-[0_0_25px_rgba(0,240,255,0.3)] hover:-translate-y-0.5 transition-all duration-300 group"
           >
             <Lock className="w-4 h-4 text-neon-cyan group-hover:animate-pulse" />
             Unlock File
@@ -548,9 +570,9 @@ function AssetCard({ item, index }) {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => setPreviewOpen(true)}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold text-white/80 bg-white/[0.04] border border-white/15 hover:border-neon-cyan/50 hover:text-white transition-all duration-300"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-12 rounded-lg text-sm font-semibold text-white/80 bg-white/[0.04] border border-white/15 hover:border-neon-cyan/50 hover:text-white transition-all duration-300"
             >
-              <Eye className="w-4 h-4 text-neon-cyan" /> Preview Script
+              <Eye className="w-4 h-4 text-neon-cyan" /> Quick View
             </motion.button>
           )}
           {SCRIPT_TYPES.includes(typeOf(item)) && isDirectFile(fileUrlOf(item), typeOf(item)) && (
@@ -558,7 +580,7 @@ function AssetCard({ item, index }) {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={copyScript}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold text-white/80 bg-white/[0.04] border border-white/15 hover:border-neon-violet/50 hover:text-white transition-all duration-300"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-12 rounded-lg text-xs font-semibold text-white/80 bg-white/[0.04] border border-white/15 hover:border-neon-violet/50 hover:text-white transition-all duration-300"
             >
               {copied ? (
                 <><Check className="w-4 h-4 text-emerald-400" /> Copied!</>

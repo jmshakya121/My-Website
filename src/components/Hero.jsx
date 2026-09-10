@@ -112,7 +112,7 @@ export default function Hero() {
                   <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-neon-cyan rounded-br-lg" />
 
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="relative w-52 h-52 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-full bg-gradient-to-br from-neon-cyan to-neon-violet p-1 animate-[glowPulse_4s_ease-in-out_infinite] shadow-[0_0_60px_rgba(0,240,255,0.25)]">
+                    <div className="relative w-40 h-40 sm:w-52 sm:h-52 md:w-72 md:h-72 lg:w-80 lg:h-80 rounded-full bg-gradient-to-br from-neon-cyan to-neon-violet p-1 animate-[glowPulse_4s_ease-in-out_infinite] shadow-[0_0_60px_rgba(0,240,255,0.25)]">
                       <div className="w-full h-full rounded-full bg-base-900 flex items-center justify-center overflow-hidden relative">
                         <div className="absolute inset-0 opacity-20 grid-animated" />
                         <img
