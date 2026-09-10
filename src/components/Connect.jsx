@@ -113,7 +113,7 @@ export default function Connect() {
   const [igOpen, setIgOpen] = useState(false)
 
   return (
-    <section id="connect" className="relative pt-28 pb-24 overflow-hidden">
+    <section id="connect" className="relative pt-16 pb-20 overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(232,121,249,0.05),transparent_55%)]" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
         <motion.div

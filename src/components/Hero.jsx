@@ -27,7 +27,7 @@ export default function Hero() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(168,85,247,0.1),transparent_60%)]" />
 
       {/* Content */}
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-14 w-full">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-16 pb-12 w-full">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left column */}
           <motion.div
@@ -47,13 +47,14 @@ export default function Hero() {
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-white leading-[1.1] mb-5">
               <span className="neon-text">{PROFILE.name}</span>
               <span className="block text-2xl sm:text-3xl lg:text-4xl text-white/90 mt-2">
-                Computer Science Developer &amp; Systems Engineer
+                CS Developer &amp; Systems Engineer
               </span>
             </h1>
 
             <p className="text-lg sm:text-xl text-white/70 leading-relaxed mb-4 max-w-xl">
-              Based in {PROFILE.location}. Building high-performance ticketing solutions,
-              web applications, and <span className="text-neon-cyan">system automation tools</span>.
+              Based in {PROFILE.location} ({PROFILE.postalCode}). Building high-performance
+              ticketing solutions, web applications, and{' '}
+              <span className="text-neon-cyan">system automation tools</span>.
             </p>
 
             {/* Feature highlights */}

@@ -34,7 +34,7 @@ export const PROFILE = {
 export const PROJECTS = {
   spotlight: {
     name: 'Service Desk Pro',
-    tagline: 'Enterprise-Ready Ticketing System',
+    tagline: 'Full-featured corporate ticketing & workflow management platform',
     description:
       'Enterprise-grade ticketing software incorporating complete workflow automation, real-time ticket routing, user management, and detailed analytics designed for modern company operations.',
     features: [
