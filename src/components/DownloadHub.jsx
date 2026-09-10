@@ -2,24 +2,33 @@ import { useMemo, useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search, Download, Copy, Check, ShieldAlert, FileCode2,
-  AlertTriangle, Package, HardDrive, Calendar, X, Lock,
+  AlertTriangle, Package, HardDrive, X, Lock,
   Rocket, ExternalLink, KeyRound, UserCheck, Unlock, ShieldCheck, Eye,
 } from 'lucide-react'
 import { SOFTWARE_ITEMS } from '../data/profile'
 
 const SCRIPT_TYPES = ['.cmd', '.bat', '.sh', '.ps1']
 
+const GITHUB_RELEASES = 'https://github.com/jmshakya121/My-Website/releases/latest'
+
+const nameOf = (item) => item.title || item.name || item.id
+const typeOf = (item) =>
+  item.type ||
+  (item.directUrl ? `.${item.directUrl.split('.').pop().toLowerCase()}` : '.bat')
+const fileUrlOf = (item) => item.directUrl || item.downloadUrl
+const releaseUrlOf = (item) => item.releaseUrl || GITHUB_RELEASES
+
 function placeholderScript(item) {
   return `@echo off
-title ${item.name} v${item.version}
+title ${nameOf(item)}
 echo.
 echo ==============================================
-echo   ${item.name}
+echo   ${nameOf(item)}
 echo   Author : JM Shakya
 echo   Domain : jmshakya.com.np
 echo ==============================================
 echo.
-echo [*] ${item.name} - view source before running.
+echo [*] ${nameOf(item)} - view source before running.
 echo [*] Placeholder script body.
 pause`
 }
@@ -31,6 +40,10 @@ const categoryColors = {
   Automation: { text: 'text-neon-blue', bg: 'bg-neon-blue/10', border: 'border-neon-blue/30' },
   '3D Templates': { text: 'text-emerald-400', bg: 'bg-emerald-400/10', border: 'border-emerald-400/30' },
   Resources: { text: 'text-amber-300', bg: 'bg-amber-400/10', border: 'border-amber-400/30' },
+  'System Utility': { text: 'text-neon-cyan', bg: 'bg-neon-cyan/10', border: 'border-neon-cyan/30' },
+  'Network & Optimization': { text: 'text-neon-violet', bg: 'bg-neon-violet/10', border: 'border-neon-violet/30' },
+  'Disk Storage': { text: 'text-neon-fuchsia', bg: 'bg-neon-fuchsia/10', border: 'border-neon-fuchsia/30' },
+  'Automation Utility': { text: 'text-neon-blue', bg: 'bg-neon-blue/10', border: 'border-neon-blue/30' },
 }
 
 function triggerDownload(item) {
@@ -39,7 +52,7 @@ function triggerDownload(item) {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `${item.id}${item.type || '.bat'}`
+  a.download = `${item.id}${typeOf(item)}`
   document.body.appendChild(a)
   a.click()
   a.remove()
@@ -50,9 +63,10 @@ const isDirectFile = (url, type) =>
   Boolean(url) && SCRIPT_TYPES.includes(type) && !url.includes('github.com')
 
 function directDownload(item) {
+  const url = fileUrlOf(item)
   const a = document.createElement('a')
-  a.href = item.downloadUrl
-  a.download = item.downloadName || `${item.id}${item.type}`
+  a.href = url
+  a.download = item.downloadName || `${item.id}${typeOf(item)}`
   document.body.appendChild(a)
   a.click()
   a.remove()
@@ -68,9 +82,9 @@ function GateModal({ item, onClose }) {
 
   const hasFunnel = Boolean(item.funnelUrl)
   const hasRelease = Boolean(item.releaseUrl)
-  const hasDirect = Boolean(item.downloadUrl)
+  const hasDirect = Boolean(fileUrlOf(item) && isDirectFile(fileUrlOf(item), typeOf(item)))
 
-  const primaryUrl = item.funnelUrl || item.releaseUrl
+  const primaryUrl = item.funnelUrl || item.releaseUrl || releaseUrlOf(item)
 
   useEffect(() => {
     const iv = setInterval(() => {
@@ -94,10 +108,11 @@ function GateModal({ item, onClose }) {
   const handleUnlock = () => {
     if (item.funnelUrl && item.funnelUrl.startsWith('http')) {
       window.open(item.funnelUrl, '_blank', 'noopener,noreferrer')
-    } else if (item.releaseUrl) {
-      window.open(item.releaseUrl, '_blank', 'noopener,noreferrer')
+    } else if (item.releaseUrl || GITHUB_RELEASES) {
+      window.open(releaseUrlOf(item), '_blank', 'noopener,noreferrer')
     }
-    if (isDirectFile(item.downloadUrl, item.type)) {
+    const url = fileUrlOf(item)
+    if (isDirectFile(url, typeOf(item))) {
       setTimeout(() => directDownload(item), 500)
     }
     setUnlocked(true)
@@ -134,9 +149,9 @@ function GateModal({ item, onClose }) {
           <div className="mx-auto mb-5 h-14 w-14 rounded-2xl bg-white/[0.05] border border-white/15 flex items-center justify-center">
             <FileCode2 className="w-7 h-7 text-neon-cyan" />
           </div>
-          <h3 className="text-xl font-bold text-white mb-1">{item.name}</h3>
+          <h3 className="text-xl font-bold text-white mb-1">{nameOf(item)}</h3>
           <p className="text-xs text-white/50 mb-6 font-mono">
-            {item.type} · {item.size} · Secure unlock
+            {typeOf(item)} · {item.size || '—'} · Secure unlock
           </p>
 
           {/* STEP 1: countdown + bot check */}
@@ -214,12 +229,12 @@ function GateModal({ item, onClose }) {
 
               {hasDirect && (
                 <a
-                  href={item.downloadUrl}
+                  href={fileUrlOf(item)}
                   download={item.downloadName}
                   className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold text-white bg-white/[0.05] border border-white/15 hover:border-neon-cyan/50 transition-all duration-300"
                 >
                   <Download className="w-4 h-4 text-neon-cyan" />
-                  Direct download {item.downloadName ? `(${item.downloadName})` : item.type}
+                  Direct download {item.downloadName ? `(${item.downloadName})` : typeOf(item)}
                 </a>
               )}
 
@@ -228,7 +243,7 @@ function GateModal({ item, onClose }) {
                   onClick={() => triggerDownload(item)}
                   className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold text-white bg-white/[0.05] border border-white/15 hover:border-neon-cyan/50 transition-all duration-300"
                 >
-                  <Download className="w-4 h-4 text-neon-cyan" /> Download {item.type}
+                  <Download className="w-4 h-4 text-neon-cyan" /> Download {typeOf(item)}
                 </button>
               )}
 
@@ -253,7 +268,7 @@ function GateModal({ item, onClose }) {
 
               <p className="flex items-center justify-center gap-1.5 text-[11px] text-white/40">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                Unlocked · {item.size} · {item.downloads} downloads
+                Unlocked · {item.size || '—'} · power-user script
               </p>
             </div>
           )}
@@ -289,13 +304,14 @@ function CodePreviewModal({ item, onClose }) {
   const [src, setSrc] = useState('')
   const [note, setNote] = useState('')
   const [copied, setCopied] = useState(false)
-  const [loading, setLoading] = useState(Boolean(item.downloadUrl))
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     let cancelled = false
-    if (isDirectFile(item.downloadUrl, item.type)) {
+    const url = fileUrlOf(item)
+    if (isDirectFile(url, typeOf(item))) {
       setLoading(true)
-      fetch(item.downloadUrl)
+      fetch(url)
         .then((r) => r.text())
         .then((text) => {
           if (!cancelled) {
@@ -312,7 +328,7 @@ function CodePreviewModal({ item, onClose }) {
         })
     } else {
       setSrc(placeholderScript(item))
-      setNote('Live file is hosted on GitHub Releases - showing a sample for review.')
+      setNote('File is served from this site - showing a sample for review.')
       setLoading(false)
     }
     return () => {
@@ -352,8 +368,8 @@ function CodePreviewModal({ item, onClose }) {
               <FileCode2 className="w-4 h-4 text-neon-cyan" />
             </span>
             <div className="min-w-0">
-              <h3 className="text-sm font-bold text-white truncate">{item.name}</h3>
-              <p className="text-[11px] font-mono text-white/40">{item.id}{item.type}</p>
+              <h3 className="text-sm font-bold text-white truncate">{nameOf(item)}</h3>
+              <p className="text-[11px] font-mono text-white/40">{item.id}{typeOf(item)}</p>
             </div>
           </div>
           <button
@@ -375,18 +391,18 @@ function CodePreviewModal({ item, onClose }) {
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-neon-cyan" />}
             {copied ? 'Copied!' : 'Copy code'}
           </motion.button>
-          {isDirectFile(item.downloadUrl, item.type) ? (
+          {isDirectFile(fileUrlOf(item), typeOf(item)) ? (
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => directDownload(item)}
               className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-emerald-500/20 to-neon-violet/20 border border-emerald-400/40 hover:shadow-[0_0_25px_rgba(52,211,153,0.25)] transition-all duration-300"
             >
-              <Download className="w-3.5 h-3.5 text-emerald-400" /> Download {item.type}
+              <Download className="w-3.5 h-3.5 text-emerald-400" /> Download {typeOf(item)}
             </motion.button>
           ) : (
             <a
-              href={item.releaseUrl}
+              href={releaseUrlOf(item)}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-emerald-500/20 to-neon-violet/20 border border-emerald-400/40 hover:shadow-[0_0_25px_rgba(52,211,153,0.25)] hover:-translate-y-0.5 transition-all duration-300"
@@ -429,8 +445,9 @@ function AssetCard({ item, index }) {
 
   const copyScript = async () => {
     try {
-      const content = item.downloadUrl
-        ? await (await fetch(item.downloadUrl)).text()
+      const url = fileUrlOf(item)
+      const content = url
+        ? await (await fetch(url)).text()
         : placeholderScript(item)
       await navigator.clipboard.writeText(content)
       setCopied(true)
@@ -464,13 +481,13 @@ function AssetCard({ item, index }) {
             </span>
           )}
           <span className="px-2.5 py-1 rounded-full text-[10px] font-mono text-white/60 bg-white/[0.04] border border-white/10">
-            {item.type}
+            {typeOf(item)}
           </span>
         </div>
       </div>
 
       <h3 className="text-lg font-bold text-white mb-2 group-hover:text-neon-cyan transition-colors duration-300">
-        {item.name}
+        {nameOf(item)}
       </h3>
       <p className="text-sm text-white/60 leading-relaxed mb-4">
         {item.description}
@@ -482,9 +499,6 @@ function AssetCard({ item, index }) {
         </span>
         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] text-white/50 border border-white/10">
           <HardDrive className="w-3 h-3" /> {item.size}
-        </span>
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] text-white/50 border border-white/10">
-          <Calendar className="w-3 h-3" /> {item.date}
         </span>
         {item.password && (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-400/10 text-amber-300 border border-amber-400/30">
@@ -500,7 +514,7 @@ function AssetCard({ item, index }) {
 
       <div className={`text-xs text-amber-300/90 bg-amber-400/[0.06] border border-amber-400/20 rounded-lg px-3 py-2 flex items-start gap-2 mb-4 ${expanded ? '' : 'relative max-h-11 overflow-hidden'}`}>
         <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
-        <p className="leading-relaxed">{item.securityNote}</p>
+        <p className="leading-relaxed">{item.securityNote || 'Review the script source before running. Use at your own risk - only on systems you own.'}</p>
         {!expanded && (
           <button
             onClick={() => setExpanded(true)}
@@ -529,7 +543,7 @@ function AssetCard({ item, index }) {
             <Lock className="w-4 h-4 text-neon-cyan group-hover:animate-pulse" />
             Unlock File
           </motion.button>
-          {SCRIPT_TYPES.includes(item.type) && (
+          {SCRIPT_TYPES.includes(typeOf(item)) && (
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
@@ -539,7 +553,7 @@ function AssetCard({ item, index }) {
               <Eye className="w-4 h-4 text-neon-cyan" /> Preview Script
             </motion.button>
           )}
-          {item.downloadUrl && SCRIPT_TYPES.includes(item.type) && !item.downloadUrl.includes('github.com') && (
+          {SCRIPT_TYPES.includes(typeOf(item)) && isDirectFile(fileUrlOf(item), typeOf(item)) && (
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
@@ -555,7 +569,7 @@ function AssetCard({ item, index }) {
           )}
         </div>
         <span className="text-[11px] font-mono text-white/40 flex items-center gap-1.5">
-          <Download className="w-3 h-3" /> {item.downloads} downloads
+          <ShieldCheck className="w-3 h-3" /> secure link
         </span>
       </div>
 
@@ -588,10 +602,10 @@ export default function DownloadHub() {
       const q = query.trim().toLowerCase()
       const matchQuery =
         !q ||
-        item.name.toLowerCase().includes(q) ||
+        nameOf(item).toLowerCase().includes(q) ||
         item.description.toLowerCase().includes(q) ||
         item.category.toLowerCase().includes(q) ||
-        item.lang.toLowerCase().includes(q)
+        (item.lang ? item.lang.toLowerCase().includes(q) : false)
       return matchCategory && matchQuery
     })
   }, [query, category])
@@ -611,11 +625,11 @@ export default function DownloadHub() {
             <Package className="w-3.5 h-3.5" /> Download Hub
           </p>
           <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-4">
-            Scripts, 3D Templates &amp; <span className="neon-text">Tech Resources</span>
+            System Tools &amp; <span className="neon-text">Utility Scripts</span>
           </h2>
           <div className="h-1 w-24 mx-auto section-title-line" />
           <p className="text-white/60 max-w-xl mx-auto mt-5 text-sm sm:text-base">
-            Search, discover, and unlock scripts and resources — each asset goes through a
+            Cleaners, optimizers, and system utilities — each asset goes through a
             quick anti-bot check before the link releases.
           </p>
         </motion.div>
@@ -633,7 +647,7 @@ export default function DownloadHub() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search scripts, templates, categories..."
+              placeholder="Search scripts, categories..."
               className="w-full pl-12 pr-12 py-4 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-xl text-white placeholder:text-white/30 focus:border-neon-cyan/60 focus:outline-none focus:shadow-[0_0_30px_rgba(0,240,255,0.1)] transition-all duration-300"
             />
             <AnimatePresence>

@@ -85,7 +85,7 @@ export default function TerminalModal() {
           { type: 'out', text: `Found ${SOFTWARE_ITEMS.length} assets in the download hub:` },
           ...SOFTWARE_ITEMS.map((it) => ({
             type: 'ok',
-            text: `  ${it.id.padEnd(30)} ${it.name} (${it.type})`,
+            text: `  ${it.id.padEnd(30)} ${it.title || it.name} (${it.directUrl ? '.' + it.directUrl.split('.').pop().toLowerCase() : '.bat'})`,
           })),
         ])
         break
