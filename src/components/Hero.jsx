@@ -49,7 +49,7 @@ export default function Hero() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(168,85,247,0.1),transparent_60%)]" />
 
       {/* Content */}
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-28 pb-16 w-full">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-24 pb-14 w-full">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left column */}
           <motion.div
@@ -87,9 +87,13 @@ export default function Hero() {
 
             {/* CTAs */}
             <div className="flex flex-wrap gap-4 mb-10">
-              <a href="#software" className="btn-primary">
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent('navigate-view', { detail: 'software' }))}
+                className="btn-primary"
+              >
                 <Download className="w-5 h-5" /> Explore Free Tools
-              </a>
+              </button>
               <a href="#hire" className="btn-secondary">
                 Hire Me / Request a Project
               </a>
@@ -191,7 +195,7 @@ export default function Hero() {
 
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
           <span className="text-[10px] font-mono text-white/40 uppercase tracking-widest">Scroll</span>
-          <a href="#software" className="text-neon-cyan animate-bounce">
+          <a href="#skills" className="text-neon-cyan animate-bounce">
             <ChevronDown className="w-6 h-6" />
           </a>
         </div>

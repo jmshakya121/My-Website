@@ -487,13 +487,17 @@ function CodePreviewModal({ item, onClose }) {
 
 /* ---------------- CARD ---------------- */
 
-function AssetCard({ item, index }) {
+function AssetCard({ item, index, forceOpen }) {
   const color = categoryColors[item.category] || categoryColors.Utilities
   const CatIcon = categoryIcons[item.category] || FileCode2
   const [expanded, setExpanded] = useState(false)
   const [gateOpen, setGateOpen] = useState(false)
   const [previewOpen, setPreviewOpen] = useState(false)
   const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    if (forceOpen) setGateOpen(true)
+  }, [forceOpen])
 
   useEffect(() => {
     const handler = (e) => {
@@ -653,9 +657,17 @@ function AssetCard({ item, index }) {
 
 /* ---------------- SECTION ---------------- */
 
-export default function DownloadHub() {
+export default function DownloadHub({ pendingGate, onGateConsumed }) {
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('All')
+  const [activeGateId, setActiveGateId] = useState(null)
+
+  useEffect(() => {
+    if (pendingGate) {
+      setActiveGateId(pendingGate)
+      if (onGateConsumed) onGateConsumed()
+    }
+  }, [pendingGate, onGateConsumed])
 
   const allCategories = useMemo(
     () => ['All', ...new Set(SOFTWARE_ITEMS.map((i) => i.category))],
@@ -677,7 +689,7 @@ export default function DownloadHub() {
   }, [query, category])
 
   return (
-    <section id="software" className="relative py-32 overflow-hidden">
+    <section id="software" className="relative pt-20 pb-24 overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(168,85,247,0.06),transparent_55%)]" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
         <motion.div
@@ -751,7 +763,7 @@ export default function DownloadHub() {
         <div className="grid md:grid-cols-2 gap-6">
           <AnimatePresence mode="popLayout">
             {filtered.map((item, i) => (
-              <AssetCard key={item.id} item={item} index={i} />
+              <AssetCard key={item.id} item={item} index={i} forceOpen={activeGateId === item.id} />
             ))}
           </AnimatePresence>
         </div>

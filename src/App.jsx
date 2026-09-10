@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowUp } from 'lucide-react'
 import Navbar from './components/Navbar.jsx'
@@ -52,20 +52,70 @@ function ScrollTopBtn() {
   )
 }
 
+const VIEWS = {
+  dashboard: (
+    <>
+      <Hero />
+      <Skills />
+      <Projects />
+      <Connect />
+      <ContactSection />
+    </>
+  ),
+  software: null, // rendered via <DownloadHub> below (needs props)
+  tools: (
+    <>
+      <ToolsSection />
+    </>
+  ),
+}
+
 export default function App() {
+  const [view, setView] = useState('dashboard')
+  const [pendingGate, setPendingGate] = useState(null)
+
+  const goToAnchor = useCallback((href) => {
+    setView('dashboard')
+    requestAnimationFrame(() => {
+      const el = document.querySelector(href)
+      if (el) el.scrollIntoView({ behavior: 'smooth' })
+    })
+  }, [])
+
+  useEffect(() => {
+    const onNavigate = (e) => {
+      if (e.detail) setView(e.detail)
+    }
+    const onAnchor = (e) => {
+      if (e.detail) goToAnchor(e.detail)
+    }
+    const onOpenSoftwareDownload = (e) => {
+      setView('software')
+      setPendingGate(e.detail?.id || null)
+    }
+    window.addEventListener('navigate-view', onNavigate)
+    window.addEventListener('navigate-anchor', onAnchor)
+    window.addEventListener('open-software-download', onOpenSoftwareDownload)
+    return () => {
+      window.removeEventListener('navigate-view', onNavigate)
+      window.removeEventListener('navigate-anchor', onAnchor)
+      window.removeEventListener('open-software-download', onOpenSoftwareDownload)
+    }
+  }, [goToAnchor])
+
   return (
     <div className="relative font-sans text-white antialiased selection:bg-neon-cyan/30 themed">
       <BackgroundFX />
       <div className="relative z-10">
-        <Navbar />
+        <Navbar view={view} onNavigate={setView} onAnchor={goToAnchor} />
         <main>
-          <Hero />
-          <Skills />
-          <Projects />
-          <DownloadHub />
-          <ToolsSection />
-          <Connect />
-          <ContactSection />
+          {VIEWS[view] || null}
+          {view === 'software' && (
+            <DownloadHub
+              pendingGate={pendingGate}
+              onGateConsumed={() => setPendingGate(null)}
+            />
+          )}
         </main>
         <Footer />
         <ScrollTopBtn />

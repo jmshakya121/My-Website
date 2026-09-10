@@ -14,12 +14,12 @@ const socials = [
 ]
 
 const quickLinks = [
-  { label: 'Home', href: '#home' },
-  { label: 'Projects', href: '#projects' },
-  { label: 'Downloads', href: '#software' },
-  { label: 'Tools', href: '#tools' },
-  { label: 'Social Connect', href: '#connect' },
-  { label: 'Hire Me', href: '#hire' },
+  { label: 'Dashboard', type: 'nav', target: 'dashboard' },
+  { label: 'Projects', type: 'anchor', href: '#projects' },
+  { label: 'Software Utilities', type: 'nav', target: 'software' },
+  { label: 'Project Tools', type: 'nav', target: 'tools' },
+  { label: 'Social Connect', type: 'anchor', href: '#connect' },
+  { label: 'Hire Me', type: 'anchor', href: '#hire' },
 ]
 
 export default function Footer() {
@@ -74,14 +74,19 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2.5">
               {quickLinks.map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
+                <li key={link.label}>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      link.type === 'nav'
+                        ? window.dispatchEvent(new CustomEvent('navigate-view', { detail: link.target }))
+                        : window.dispatchEvent(new CustomEvent('navigate-anchor', { detail: link.href }))
+                    }
                     className="text-sm text-white/50 hover:text-neon-cyan transition-colors duration-300 flex items-center gap-2 group"
                   >
                     <span className="font-mono text-[10px] text-neon-violet/60 group-hover:text-neon-cyan">→</span>
                     {link.label}
-                  </a>
+                  </button>
                 </li>
               ))}
             </ul>

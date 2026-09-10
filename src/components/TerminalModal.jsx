@@ -107,14 +107,16 @@ export default function TerminalModal() {
         }
         const item = SOFTWARE_ITEMS.find(
           (i) => i.id.toLowerCase() === arg.toLowerCase() ||
-            i.name.toLowerCase().includes(arg.toLowerCase())
+            (i.name || '').toLowerCase().includes(arg.toLowerCase())
         )
         if (!item) {
           push([...base, { type: 'err', text: `Asset '${arg}' not found. Run 'ls' to list ids.` }])
           break
         }
-        window.dispatchEvent(new CustomEvent('open-download-gate', { detail: { id: item.id } }))
-        push([...base, { type: 'ok', text: `Opening gate for '${item.name}'...` }])
+        window.dispatchEvent(
+          new CustomEvent('open-software-download', { detail: { id: item.id } })
+        )
+        push([...base, { type: 'ok', text: `Switching to Software Utilities and opening '${item.title || item.id}'...` }])
         break
       }
       case 'clear':
