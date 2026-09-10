@@ -1,22 +1,22 @@
 import { motion } from 'framer-motion'
 import {
   Mail, ShieldCheck,
-  Rocket, FolderKanban, Eye, Zap, Download, Package,
+  GraduationCap, BadgeCheck, Terminal, Award, Download, FolderKanban,
 } from 'lucide-react'
 import { PROFILE, SITE_METRICS } from '../data/profile'
 
 const METRICS = [
   { icon: Download, label: 'Downloads', value: SITE_METRICS.downloads },
-  { icon: Package, label: 'Active Tools', value: SITE_METRICS.tools },
-  { icon: FolderKanban, label: 'Categories', value: SITE_METRICS.categories },
+  { icon: FolderKanban, label: 'Active Tools', value: SITE_METRICS.tools },
+  { icon: Terminal, label: 'Scripts', value: SITE_METRICS.categories },
   { icon: ShieldCheck, label: 'Verified', value: SITE_METRICS.verified },
 ]
 
 const HIGHLIGHTS = [
-  { icon: Zap, text: '100% Free' },
-  { icon: Eye, text: 'Zero Ads Interstitials' },
-  { icon: Rocket, text: 'Automated Drivers' },
-  { icon: ShieldCheck, text: 'Source Visible' },
+  { icon: GraduationCap, text: 'CS Undergrad' },
+  { icon: BadgeCheck, text: 'Vercel Verified' },
+  { icon: Terminal, text: 'Custom Scripting' },
+  { icon: Award, text: '+2 CS Graduate' },
 ]
 
 export default function Hero() {
@@ -41,16 +41,19 @@ export default function Hero() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-cyan opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-neon-cyan" />
               </span>
-              <span className="text-xs font-mono text-neon-cyan">// IT HUB Utility Platform</span>
+              <span className="text-xs font-mono text-neon-cyan">// CS Developer & Systems Engineer</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-white leading-[1.1] mb-5">
-              IT HUB <span className="neon-text">Utility Engine</span>
+              <span className="neon-text">{PROFILE.name}</span>
+              <span className="block text-2xl sm:text-3xl lg:text-4xl text-white/90 mt-2">
+                Computer Science Developer &amp; Systems Engineer
+              </span>
             </h1>
 
             <p className="text-lg sm:text-xl text-white/70 leading-relaxed mb-4 max-w-xl">
-              Curated system scripts, driver packs, and power-user utilities{' '}
-              <span className="text-neon-cyan">maintained by IT HUB</span>.
+              Based in {PROFILE.location}. Building high-performance ticketing solutions,
+              web applications, and <span className="text-neon-cyan">system automation tools</span>.
             </p>
 
             {/* Feature highlights */}

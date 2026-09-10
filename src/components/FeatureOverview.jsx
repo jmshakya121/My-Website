@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import {
   Download, Wrench, Rocket, ShieldCheck, ShieldAlert,
   Send, Mail, Copy, Check, MessageCircle, ExternalLink,
-  Youtube, Instagram, Facebook, Github, Zap, Package, HardDrive, Crown, FolderKanban,
+  Youtube, Instagram, Facebook, Github, Zap, Package, HardDrive, Crown,
 } from 'lucide-react'
 import TiltCard from './TiltCard.jsx'
 import {
@@ -138,21 +138,23 @@ function ProjectCard() {
           </div>
         ))}
       </div>
-      <button
-        type="button"
-        onClick={() => navigate('projects')}
-        className="btn-primary text-sm px-5 py-2.5 w-full justify-center"
-      >
-        <FolderKanban className="w-4 h-4" /> View All Projects
-      </button>
+      <div className="flex flex-col gap-2.5">
       <a
         href={PROJECTS.spotlight.liveUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center justify-center gap-1.5 mt-2.5 text-xs font-mono text-neon-cyan/80 hover:text-neon-cyan transition-colors"
+        className="btn-primary text-sm px-5 py-2.5 w-full justify-center"
       >
-        Visit Live Demo <ExternalLink className="w-3.5 h-3.5" />
+        Visit Live Demo <ExternalLink className="w-4 h-4" />
       </a>
+      <button
+        type="button"
+        onClick={() => navigate('contact')}
+        className="btn-secondary text-sm px-5 py-2.5 w-full justify-center"
+      >
+        Request Access
+      </button>
+    </div>
     </CardShell>
   )
 }

@@ -703,10 +703,10 @@ export default function DownloadHub({ pendingGate, onGateConsumed }) {
           className="text-center mb-12"
         >
           <p className="chip mx-auto mb-4">
-            <Package className="w-3.5 h-3.5" /> Download Hub
+            <Package className="w-3.5 h-3.5" /> Software Utilities &amp; Activators
           </p>
           <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-4">
-            System Tools &amp; <span className="neon-text">Utility Scripts</span>
+            Utility &amp; <span className="neon-text">Activator Engine</span>
           </h2>
           <div className="h-1 w-24 mx-auto section-title-line" />
           <p className="text-white/60 max-w-xl mx-auto mt-5 text-sm sm:text-base">

@@ -1,16 +1,16 @@
 import { useRef, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import {
-  Gauge, LineChart, UserCheck, Zap, ArrowUpRight,
-  Ticket, Activity, Clock, ShieldCheck, FolderKanban, CheckCircle2,
+  LineChart, UserCheck, Zap, ArrowUpRight,
+  Activity, Clock, ShieldCheck, FolderKanban, CheckCircle2, Mail,
 } from 'lucide-react'
 import { PROJECTS } from '../data/profile'
 
 const featureIcons = {
-  'Live Dashboard': Gauge,
-  'Analytics': LineChart,
-  'Role-based Access': UserCheck,
-  'Ticket Automation': Zap,
+  'Workflow Automation': Zap,
+  'Real-time Ticket Routing': Activity,
+  'User Management': UserCheck,
+  'Detailed Analytics': LineChart,
 }
 
 const mockTickets = [
@@ -163,8 +163,13 @@ function TiltCard() {
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <button className="btn-primary text-sm px-5 py-2.5" style={{ transform: 'translateZ(50px)' }}>
-                <Ticket className="w-4 h-4" /> View Case Study
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent('navigate-view', { detail: 'contact' }))}
+                className="btn-primary text-sm px-5 py-2.5"
+                style={{ transform: 'translateZ(50px)' }}
+              >
+                <Mail className="w-4 h-4" /> Request Access
               </button>
               <a
                 href={PROJECTS.spotlight.liveUrl}

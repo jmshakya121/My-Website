@@ -36,12 +36,12 @@ export const PROJECTS = {
     name: 'Service Desk Pro',
     tagline: 'Enterprise-Ready Ticketing System',
     description:
-      'A comprehensive, enterprise-ready ticketing system designed to streamline IT support, issue tracking, and ticket management for businesses.',
+      'Enterprise-grade ticketing software incorporating complete workflow automation, real-time ticket routing, user management, and detailed analytics designed for modern company operations.',
     features: [
-      'Live Dashboard',
-      'Analytics',
-      'Role-based Access',
-      'Ticket Automation',
+      'Workflow Automation',
+      'Real-time Ticket Routing',
+      'User Management',
+      'Detailed Analytics',
     ],
     stats: [
       { label: 'Tickets Handled', value: '10K+' },

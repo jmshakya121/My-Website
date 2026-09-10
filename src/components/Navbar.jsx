@@ -53,10 +53,10 @@ export default function Navbar({ view = 'dashboard', onNavigate, theme = 'dark',
           </div>
           <div className="flex flex-col items-start leading-tight">
             <span className="font-mono font-bold text-white text-lg tracking-tight">
-              IT<span className="text-neon-cyan">_HUB</span>
+              JM<span className="text-neon-cyan">_</span>Shakya
             </span>
             <span className="text-[10px] font-mono text-white/50 uppercase tracking-widest">
-              utility engine
+              dev · systems · scripts
             </span>
           </div>
         </button>
