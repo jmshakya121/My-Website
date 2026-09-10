@@ -3,7 +3,7 @@ import instagramQr from '../assets/instagram-qr.png'
 
 /* Adsterra Smartlink — paste your live link here once and every download uses it.
    Format looks like: https://www.effectiveratecpm.com/xxx?key=yyy */
-const ADSTERRA_SMARTLINK = 'YOUR_ADSTERRA_SMARTLINK_HERE'
+const ADSTERRA_SMARTLINK = 'https://www.profitableratecpmnetwork.com/yrizdj3s2j?key=d078fe0e8d4efa056cb25510dc2456a7'
 
 export const PROFILE = {
   name: 'JM Shakya',
