@@ -56,7 +56,7 @@ export const SOFTWARE_ITEMS = [
     id: 'one-click-cleaner',
     title: '1-Click Windows Temp & Junk Cleaner',
     category: 'System Utility',
-    size: '2 KB',
+    size: '1.4 KB',
     description:
       'Wipes user temp files, system cache, prefetch data, and flushes DNS in one click.',
     funnelUrl: ADSTERRA_SMARTLINK,
@@ -66,7 +66,7 @@ export const SOFTWARE_ITEMS = [
     id: 'network-system-optimizer',
     title: '1-Click Network & System Optimizer',
     category: 'Network & Optimization',
-    size: '3 KB',
+    size: '1.4 KB',
     description:
       'Resets Winsock/IP stack, flushes DNS, clears thumbnail cache, and optimizes adapter settings.',
     funnelUrl: ADSTERRA_SMARTLINK,
@@ -76,7 +76,7 @@ export const SOFTWARE_ITEMS = [
     id: 'windows-old-cleaner',
     title: 'Windows.old Storage Remover',
     category: 'Disk Storage',
-    size: '3 KB',
+    size: '1.5 KB',
     description:
       'Takes system ownership and safely removes C:\\Windows.old to free up 20GB+ space.',
     funnelUrl: ADSTERRA_SMARTLINK,
@@ -84,9 +84,9 @@ export const SOFTWARE_ITEMS = [
   },
   {
     id: 'office-activite',
-    title: 'Office Script Utility',
+    title: 'Office Activator Utility',
     category: 'Automation Utility',
-    size: '2 KB',
+    size: '744 KB',
     description:
       'Automated batch script utility for Office environment configuration.',
     funnelUrl: ADSTERRA_SMARTLINK,
@@ -94,9 +94,9 @@ export const SOFTWARE_ITEMS = [
   },
   {
     id: 'windows-activite',
-    title: 'Windows Script Utility',
+    title: 'Windows Activator Utility',
     category: 'Automation Utility',
-    size: '2 KB',
+    size: '744 KB',
     description:
       'Automated batch script utility for Windows environment setup.',
     funnelUrl: ADSTERRA_SMARTLINK,
