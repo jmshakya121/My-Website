@@ -7,18 +7,20 @@ export default {
   theme: {
     extend: {
       colors: {
+        body: 'rgb(var(--c-body-rgb) / <alpha-value>)',
         base: {
-          950: '#05050a',
-          900: '#0a0a14',
-          800: '#12121f',
-          700: '#1a1a2e',
+          950: 'var(--c-950)',
+          900: 'var(--c-900)',
+          800: 'var(--c-800)',
+          700: 'var(--c-700)',
         },
         neon: {
-          cyan: '#00f0ff',
-          violet: '#a855f7',
-          fuchsia: '#e879f9',
-          blue: '#38bdf8',
+          cyan: 'rgb(var(--neon-cyan-rgb) / <alpha-value>)',
+          violet: 'rgb(var(--neon-violet-rgb) / <alpha-value>)',
+          fuchsia: 'rgb(var(--neon-fuchsia-rgb) / <alpha-value>)',
+          blue: 'rgb(var(--neon-blue-rgb) / <alpha-value>)',
         },
+        white: 'rgb(var(--white-rgb) / <alpha-value>)',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -59,7 +61,7 @@ export default {
         'radial-glow': 'radial-gradient(circle at center, rgba(168,85,247,0.15), transparent 60%)',
       },
       backgroundColor: {
-        glass: 'rgba(255,255,255,0.03)',
+        glass: 'var(--surface)',
       },
     },
   },

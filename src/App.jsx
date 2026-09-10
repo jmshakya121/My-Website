@@ -54,7 +54,7 @@ function ScrollTopBtn() {
 
 export default function App() {
   return (
-    <div className="relative font-sans text-white antialiased selection:bg-neon-cyan/30">
+    <div className="relative font-sans text-white antialiased selection:bg-neon-cyan/30 themed">
       <BackgroundFX />
       <div className="relative z-10">
         <Navbar />

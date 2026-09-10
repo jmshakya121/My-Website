@@ -25,8 +25,8 @@ export default function Skills() {
       </div>
 
       <div className="relative">
-        <div className="absolute left-0 top-0 bottom-0 w-32 z-10 bg-gradient-to-r from-[#05050a] to-transparent pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-32 z-10 bg-gradient-to-l from-[#05050a] to-transparent pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-32 z-10 bg-gradient-to-r from-body to-transparent pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-32 z-10 bg-gradient-to-l from-body to-transparent pointer-events-none" />
 
         <motion.div
           initial={{ opacity: 0 }}

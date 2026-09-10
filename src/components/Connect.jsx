@@ -62,9 +62,9 @@ function InstagramModal({ open, onClose }) {
           <h3 className="text-xl font-bold text-white mb-1">Scan to connect</h3>
           <p className="text-xs text-white/50 mb-6 font-mono">@{MEDIA.instagram.handle}</p>
 
-          <div className="relative mx-auto w-fit p-3 rounded-2xl bg-white shadow-[0_0_40px_rgba(168,85,247,0.2)]">
+          <div className="relative mx-auto w-fit p-3 rounded-2xl bg-[#fff] shadow-[0_0_40px_rgba(168,85,247,0.2)]">
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-neon-cyan/30 to-neon-violet/30 blur-lg -z-10" />
-            <div className="relative h-[200px] w-[200px] rounded-xl overflow-hidden bg-white">
+            <div className="relative h-[200px] w-[200px] rounded-xl overflow-hidden bg-[#fff]">
               <img
                 src={MEDIA.instagram.qr}
                 alt={`Instagram QR code for ${MEDIA.instagram.handle}`}
@@ -212,7 +212,7 @@ export default function Connect() {
               <p className="text-xs text-white/40 font-mono mb-6">Behind the scenes & reels</p>
 
               <div className="flex items-center gap-3 py-3 px-4 rounded-xl bg-gradient-to-tr from-amber-400/10 via-fuchsia-500/10 to-violet-600/10 border border-fuchsia-400/20 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-white p-1.5">
+                <div className="w-10 h-10 rounded-lg bg-[#fff] p-1.5">
                   <img
                     src={`data:image/svg+xml;base64,${btoa(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="#0a0a14"><rect width="40" height="40" rx="8" fill="white"/><rect x="6" y="6" width="28" height="28" rx="6" fill="none" stroke="#0a0a14" stroke-width="3"/><circle cx="20" cy="20" r="7" fill="none" stroke="#0a0a14" stroke-width="3"/><circle cx="29" cy="11" r="2.5" fill="#0a0a14"/></svg>`)}`}
                     alt="Instagram icon"

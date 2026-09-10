@@ -1,7 +1,10 @@
 import { lazy, Suspense } from 'react'
 import { motion } from 'framer-motion'
-import { MapPin, MousePointer2, Handshake, Code2, Laptop, Mail, ChevronDown, Loader2 } from 'lucide-react'
-import { PROFILE } from '../data/profile'
+import {
+  Mail, ChevronDown, Loader2, ShieldCheck,
+  Rocket, FolderKanban, Eye, Zap, Download, Package,
+} from 'lucide-react'
+import { PROFILE, SITE_METRICS } from '../data/profile'
 
 const HeroScene = lazy(() => import('./three/HeroScene.jsx'))
 
@@ -17,9 +20,23 @@ function SceneFallback() {
   )
 }
 
+const METRICS = [
+  { icon: Download, label: 'Downloads', value: SITE_METRICS.downloads },
+  { icon: Package, label: 'Active Tools', value: SITE_METRICS.tools },
+  { icon: FolderKanban, label: 'Categories', value: SITE_METRICS.categories },
+  { icon: ShieldCheck, label: 'Verified', value: SITE_METRICS.verified },
+]
+
+const HIGHLIGHTS = [
+  { icon: Zap, text: '100% Free' },
+  { icon: Eye, text: 'Zero Ads Interstitials' },
+  { icon: Rocket, text: 'Automated Drivers' },
+  { icon: ShieldCheck, text: 'Source Visible' },
+]
+
 export default function Hero() {
   return (
-    <section id="home" className="relative min-h-screen flex items-center overflow-hidden">
+    <section id="dashboard" className="relative min-h-screen flex items-center overflow-hidden">
       {/* 3D Background */}
       <div className="absolute inset-0">
         <Suspense fallback={<SceneFallback />}>
@@ -27,8 +44,8 @@ export default function Hero() {
         </Suspense>
       </div>
 
-      {/* Gradient overlays */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#05050a]/60 via-transparent to-[#05050a]" />
+      {/* Gradient overlays — use CSS var bg colors */}
+      <div className="absolute inset-0 bg-gradient-to-b from-body/60 via-transparent to-body" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(168,85,247,0.1),transparent_60%)]" />
 
       {/* Content */}
@@ -46,39 +63,37 @@ export default function Hero() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-cyan opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-neon-cyan" />
               </span>
-              <span className="text-xs font-mono text-neon-cyan">// Available for opportunities</span>
+              <span className="text-xs font-mono text-neon-cyan">// Free Utility Platform</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-white leading-[1.1] mb-5">
-              {"Hi, I'm "}
-              <span className="neon-text">JM Shakya</span>
+              Free Windows Tools{' '}
+              <span className="neon-text">You Can Trust</span>
             </h1>
 
             <p className="text-lg sm:text-xl text-white/70 leading-relaxed mb-4 max-w-xl">
-              Crafting modern web software &amp; interactive{' '}
-              <span className="text-neon-cyan">3D web experiences</span>.
+              Download verified system utilities, activators, and drivers —{' '}
+              <span className="text-neon-cyan">100% free</span>, source-visible, and safe.
             </p>
 
-            <div className="flex flex-wrap items-center gap-2 text-sm font-mono text-white/60 mb-8">
-              <span className="chip">
-                <Code2 className="w-3.5 h-3.5" /> Full-Stack Developer
-              </span>
-              <span className="chip">
-                <Laptop className="w-3.5 h-3.5" /> CS Student
-              </span>
-              <span className="chip">
-                <MapPin className="w-3.5 h-3.5" /> {PROFILE.location}
-              </span>
+            {/* Feature highlights */}
+            <div className="flex flex-wrap items-center gap-2 text-sm font-mono mb-8">
+              {HIGHLIGHTS.map(({ icon: Icon, text }) => (
+                <span key={text} className="chip">
+                  <Icon className="w-3.5 h-3.5" /> {text}
+                </span>
+              ))}
             </div>
 
+            {/* CTAs */}
             <div className="flex flex-wrap gap-4 mb-10">
-              <a href="#hire" className="btn-primary">
-                <Handshake className="w-5 h-5" /> Hire Me / Request a Project
+              <a href="#software" className="btn-primary">
+                <Download className="w-5 h-5" /> Explore Free Tools
+              </a>
+              <a href="#hire" className="btn-secondary">
+                Hire Me / Request a Project
               </a>
               <a href="#projects" className="btn-secondary">
-                Explore Software
-              </a>
-              <a href="#software" className="btn-secondary">
                 View Projects
               </a>
             </div>
@@ -142,19 +157,41 @@ export default function Hero() {
 
               <div className="absolute -top-4 -right-4 glass-strong rounded-xl px-4 py-2.5 flex items-center gap-2 animate-[float_5s_ease-in-out_infinite] z-10">
                 <div className="w-2 h-2 rounded-full bg-neon-cyan shadow-[0_0_10px_rgba(0,240,255,0.8)]" />
-                <span className="text-xs font-mono text-white/80">3D · WebGL</span>
+                <span className="text-xs font-mono text-white/80">Free &amp; Open</span>
               </div>
               <div className="absolute -bottom-4 -left-4 glass-strong rounded-xl px-4 py-2.5 flex items-center gap-2 animate-[float_7s_ease-in-out_infinite] z-10" style={{ animationDelay: '1.5s' }}>
-                <MousePointer2 className="w-3.5 h-3.5 text-neon-violet" />
-                <span className="text-xs font-mono text-white/80">Interactive</span>
+                <ShieldCheck className="w-3.5 h-3.5 text-neon-cyan" />
+                <span className="text-xs font-mono text-white/80">Source Visible</span>
               </div>
             </div>
           </motion.div>
         </div>
 
+        {/* Dashboard Metrics Row */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-16 max-w-4xl mx-auto"
+        >
+          {METRICS.map(({ icon: Icon, label, value }, i) => (
+            <motion.div
+              key={label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.7 + i * 0.1 }}
+              className="glass rounded-2xl p-5 text-center hover:border-neon-cyan/40 hover:shadow-[0_0_30px_rgba(0,240,255,0.08)] transition-all duration-300 group"
+            >
+              <Icon className="w-5 h-5 text-neon-cyan mx-auto mb-2 group-hover:scale-110 transition-transform" />
+              <p className="text-2xl font-bold neon-text font-mono">{value}</p>
+              <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">{label}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
           <span className="text-[10px] font-mono text-white/40 uppercase tracking-widest">Scroll</span>
-          <a href="#projects" className="text-neon-cyan animate-bounce">
+          <a href="#software" className="text-neon-cyan animate-bounce">
             <ChevronDown className="w-6 h-6" />
           </a>
         </div>

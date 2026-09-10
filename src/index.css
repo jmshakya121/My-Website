@@ -2,14 +2,90 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Theme tokens — dark is the default, `.light` overrides on <html> */
+:root {
+  --c-body: #05050a;
+  --c-body-rgb: 5 5 10;
+  --c-950: #05050a;
+  --c-900: #0a0a14;
+  --c-800: #12121f;
+  --c-700: #1a1a2e;
+
+  --white-rgb: 255 255 255;
+
+  --neon-cyan-rgb: 0 240 255;
+  --neon-violet-rgb: 168 85 247;
+  --neon-fuchsia-rgb: 232 121 249;
+  --neon-blue-rgb: 56 189 248;
+
+  --surface: rgba(255, 255, 255, 0.03);
+  --surface-strong: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.16);
+}
+
+html.light {
+  --c-body: #f1f5f9;
+  --c-body-rgb: 241 245 249;
+  --c-950: #e2e8f0;
+  --c-900: #ffffff;
+  --c-800: #f8fafc;
+  --c-700: #e2e8f0;
+
+  --white-rgb: 15 23 42;
+
+  --neon-cyan-rgb: 8 145 178;
+  --neon-violet-rgb: 124 58 237;
+  --neon-fuchsia-rgb: 192 38 211;
+  --neon-blue-rgb: 14 116 144;
+
+  --surface: rgba(255, 255, 255, 0.72);
+  --surface-strong: rgba(255, 255, 255, 0.95);
+  --border: rgba(15, 23, 42, 0.12);
+  --border-strong: rgba(15, 23, 42, 0.2);
+}
+
+/* Smooth theme switches */
+.themed,
+.themed body,
+.themed section,
+.themed header,
+.themed footer,
+.themed div,
+.themed a,
+.themed button,
+.themed input,
+.themed select,
+.themed textarea,
+.themed span,
+.themed p,
+.themed h1,
+.themed h2,
+.themed h3,
+.themed h4,
+.themed li,
+.themed pre,
+.themed code {
+  transition:
+    background-color 0.35s ease,
+    border-color 0.35s ease,
+    color 0.35s ease,
+    opacity 0.25s ease;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
   }
 
+  section[id],
+  div[id] {
+    scroll-margin-top: 92px;
+  }
+
   body {
-    background-color: #05050a;
-    color: #e5e7eb;
+    background-color: var(--c-body);
+    color: rgb(var(--white-rgb));
     overflow-x: hidden;
   }
 
@@ -22,10 +98,10 @@
     width: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: #0a0a14;
+    background: var(--c-800);
   }
   ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #00f0ff, #a855f7);
+    background: linear-gradient(180deg, rgb(var(--neon-cyan-rgb)), rgb(var(--neon-violet-rgb)));
     border-radius: 5px;
   }
   ::-webkit-scrollbar-thumb:hover {
@@ -35,16 +111,26 @@
 
 @layer components {
   .glass {
-    @apply bg-white/[0.03] backdrop-blur-xl border border-white/10;
+    @apply backdrop-blur-xl border;
+    background-color: var(--surface);
+    border-color: var(--border);
   }
 
   .glass-strong {
-    @apply bg-white/[0.06] backdrop-blur-2xl border border-white/15;
+    @apply backdrop-blur-2xl border;
+    background-color: var(--surface-strong);
+    border-color: var(--border-strong);
   }
 
   .neon-text {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(90deg, #00f0ff, #a855f7, #e879f9, #00f0ff);
+    background-image: linear-gradient(
+      90deg,
+      rgb(var(--neon-cyan-rgb)),
+      rgb(var(--neon-violet-rgb)),
+      rgb(var(--neon-fuchsia-rgb)),
+      rgb(var(--neon-cyan-rgb))
+    );
     background-size: 200% auto;
     animation: gradientShift 8s ease infinite;
   }
@@ -58,7 +144,12 @@
     inset: 0;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(135deg, #00f0ff, #a855f7, #e879f9);
+    background: linear-gradient(
+      135deg,
+      rgb(var(--neon-cyan-rgb)),
+      rgb(var(--neon-violet-rgb)),
+      rgb(var(--neon-fuchsia-rgb))
+    );
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
@@ -67,38 +158,38 @@
 
   .btn-primary {
     @apply relative inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-base transition-all duration-300;
-    background: linear-gradient(135deg, rgba(0,240,255,0.15), rgba(168,85,247,0.15));
-    border: 1px solid rgba(0,240,255,0.4);
-    color: #fff;
-    box-shadow: 0 0 20px rgba(0,240,255,0.15), inset 0 0 20px rgba(0,240,255,0.05);
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(168, 85, 247, 0.15));
+    border: 1px solid rgba(0, 240, 255, 0.4);
+    color: rgb(var(--white-rgb));
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.15), inset 0 0 20px rgba(0, 240, 255, 0.05);
   }
   .btn-primary:hover {
     transform: translateY(-3px);
-    box-shadow: 0 0 40px rgba(0,240,255,0.3), inset 0 0 30px rgba(0,240,255,0.1);
-    border-color: rgba(168,85,247,0.6);
+    box-shadow: 0 0 40px rgba(0, 240, 255, 0.3), inset 0 0 30px rgba(0, 240, 255, 0.1);
+    border-color: rgba(168, 85, 247, 0.6);
   }
 
   .btn-secondary {
     @apply relative inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-base transition-all duration-300 backdrop-blur-xl;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(168,85,247,0.4);
-    color: #fff;
+    background: var(--surface);
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    color: rgb(var(--white-rgb));
   }
   .btn-secondary:hover {
     transform: translateY(-3px);
-    border-color: rgba(0,240,255,0.6);
-    box-shadow: 0 0 30px rgba(168,85,247,0.25);
+    border-color: rgb(var(--neon-cyan-rgb));
+    box-shadow: 0 0 30px rgba(168, 85, 247, 0.25);
   }
 
   .section-title-line {
-    background: linear-gradient(90deg, #00f0ff, transparent);
+    background: linear-gradient(90deg, rgb(var(--neon-cyan-rgb)), transparent);
   }
 
   .chip {
-    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium backdrop-blur-md;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(0,240,255,0.2);
-    color: #a5f3fc;
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium backdrop-blur-md border;
+    background-color: var(--surface);
+    border-color: rgba(0, 240, 255, 0.2);
+    color: rgb(var(--neon-cyan-rgb));
   }
 
   .tilt-card {
@@ -131,8 +222,8 @@
 
 .grid-animated {
   background-image:
-    linear-gradient(rgba(0,240,255,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,240,255,0.04) 1px, transparent 1px);
+    linear-gradient(rgba(0, 240, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
   background-size: 50px 50px;
   animation: gridMove 4s linear infinite;
 }

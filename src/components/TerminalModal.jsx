@@ -176,7 +176,7 @@ export default function TerminalModal() {
             transition={{ type: 'spring', stiffness: 300, damping: 26 }}
             className="fixed bottom-24 left-4 sm:left-6 z-[90] w-[min(92vw,540px)] rounded-2xl overflow-hidden glass-strong border border-white/10 shadow-2xl"
           >
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-black/40">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-white/[0.04]">
               <div className="flex items-center gap-2">
                 <span className="h-3 w-3 rounded-full bg-rose-500/80" />
                 <span className="h-3 w-3 rounded-full bg-amber-400/80" />
@@ -206,7 +206,7 @@ export default function TerminalModal() {
               ))}
             </div>
 
-            <div className="flex items-center gap-2 px-4 py-3 border-t border-white/10 bg-black/40">
+            <div className="flex items-center gap-2 px-4 py-3 border-t border-white/10 bg-white/[0.04]">
               <span className="font-mono text-sm text-neon-cyan">\u203A</span>
               <input
                 ref={inputRef}

@@ -115,6 +115,13 @@ export const SOFTWARE_ITEMS = [
   },
 ]
 
+export const SITE_METRICS = {
+  downloads: '50K+',
+  tools: '6',
+  categories: '4',
+  verified: '100%',
+}
+
 /* Hire / client intake configuration */
 export const HIRE = {
   endpoint: 'https://api.web3forms.com/submit',

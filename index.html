@@ -7,6 +7,13 @@
     <meta name="description" content="JM Shakya - Computer Science Student & Full-Stack Developer crafting modern web software & interactive 3D web experiences." />
     <meta name="theme-color" content="#05050a" />
     <title>JM Shakya | Full-Stack Developer & 3D Web Experiences</title>
+    <script>
+      try {
+        if (localStorage.getItem('jm-theme') === 'light') {
+          document.documentElement.classList.add('light')
+        }
+      } catch (e) {}
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
