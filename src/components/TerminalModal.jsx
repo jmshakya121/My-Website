@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Terminal, X } from 'lucide-react'
 import { PROFILE, SOFTWARE_ITEMS } from '../data/profile'
+import useScrollLock from '../hooks/useScrollLock'
+import useEscape from '../hooks/useEscape'
 
 const HELP = [
   ['help', 'Show this help screen'],
@@ -23,6 +25,9 @@ const lineClass = {
 
 export default function TerminalModal() {
   const [open, setOpen] = useState(false)
+  /* Stable identity, otherwise the Escape effect re-subscribes on every
+     keystroke typed into the prompt. */
+  const close = useCallback(() => setOpen(false), [])
   const [lines, setLines] = useState([
     { type: 'accent', text: 'JM SHAKYA - Developer Terminal v1.0' },
     { type: 'info', text: "Type 'help' to see available commands." },
@@ -32,16 +37,21 @@ export default function TerminalModal() {
   const [histIdx, setHistIdx] = useState(-1)
   const scrollRef = useRef(null)
   const inputRef = useRef(null)
+  const panelRef = useRef(null)
+
+  useScrollLock(open)
+  useEscape(open, close)
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })
   }, [lines, open])
 
   useEffect(() => {
-    if (open) {
-      const t = setTimeout(() => inputRef.current?.focus(), 60)
-      return () => clearTimeout(t)
-    }
+    if (!open) return undefined
+    // The on-screen keyboard steals vertical space, so keep the panel top-anchored.
+    if (panelRef.current) panelRef.current.scrollTop = 0
+    const t = setTimeout(() => inputRef.current?.focus(), 80)
+    return () => clearTimeout(t)
   }, [open])
 
   const push = (pts) => setLines((prev) => [...prev, ...pts])
@@ -75,7 +85,7 @@ export default function TerminalModal() {
           { type: 'out', text: `Found ${SOFTWARE_ITEMS.length} assets in the download hub:` },
           ...SOFTWARE_ITEMS.map((it) => ({
             type: 'ok',
-            text: `  ${it.id.padEnd(30)} ${it.title || it.name} (${it.directUrl ? '.' + it.directUrl.split('.').pop().toLowerCase() : '.bat'})`,
+            text: `  ${it.id.padEnd(30)} ${it.title || it.name}`,
           })),
         ])
         break
@@ -125,6 +135,7 @@ export default function TerminalModal() {
 
   const onKey = (e) => {
     if (e.key === 'Enter') {
+      e.preventDefault()
       run(value)
     } else if (e.key === 'ArrowUp') {
       e.preventDefault()
@@ -148,42 +159,52 @@ export default function TerminalModal() {
     }
   }
 
-  const close = () => setOpen(false)
-
   return (
     <>
       <motion.button
+        type="button"
         onClick={() => setOpen((o) => !o)}
-        whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.92 }}
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="fixed bottom-6 left-6 z-[90] flex items-center gap-2 px-4 py-3 rounded-xl glass-strong border border-neon-cyan/40 text-sm font-semibold text-white hover:shadow-[0_0_30px_rgba(0,240,255,0.35)] transition-shadow duration-300"
+        /* Clears the iPhone home indicator, and sits below the scroll-to-top
+           button so the two never overlap. */
+        className="fixed left-4 sm:left-6 z-[90] flex items-center gap-2 p-3 sm:px-4 sm:py-3 rounded-xl glass-strong border border-neon-cyan/40 text-white hover:shadow-[0_0_30px_rgba(0,240,255,0.35)] active:scale-95 transition-shadow duration-300"
+        style={{ bottom: 'calc(var(--sab) + 1rem)' }}
         aria-label="Open terminal"
+        aria-expanded={open}
       >
         <Terminal className="w-4 h-4 text-neon-cyan" />
-        <span className="hidden sm:inline">Terminal</span>
+        <span className="hidden sm:inline text-sm font-semibold">Terminal</span>
       </motion.button>
 
       <AnimatePresence>
         {open && (
           <motion.div
+            ref={panelRef}
+            role="dialog"
+            aria-label="Developer terminal"
             initial={{ opacity: 0, y: 24, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.96 }}
             transition={{ type: 'spring', stiffness: 300, damping: 26 }}
-            className="fixed bottom-24 left-4 sm:left-6 z-[90] w-[min(92vw,540px)] rounded-2xl overflow-hidden glass-strong border border-white/10 shadow-2xl"
+            /* Full-width sheet on phones so 92vw + a left offset can't spill
+               past the right edge; `dvh` keeps it on screen when the mobile
+               keyboard opens. */
+            className="fixed left-0 right-0 sm:left-6 sm:right-auto sm:w-[min(92vw,540px)] z-[90] max-h-[min(60dvh,420px)] flex flex-col overflow-hidden glass-strong border-y sm:border border-white/10 shadow-2xl"
+            style={{ bottom: 'calc(var(--sab) + 4.75rem)' }}
           >
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-white/[0.04]">
-              <div className="flex items-center gap-2">
-                <span className="h-3 w-3 rounded-full bg-rose-500/80" />
-                <span className="h-3 w-3 rounded-full bg-amber-400/80" />
-                <span className="h-3 w-3 rounded-full bg-emerald-400/80" />
-                <span className="ml-3 font-mono text-xs text-white/60">jm@shakya: ~</span>
+            <div className="flex shrink-0 items-center justify-between px-4 py-3 border-b border-white/10 bg-white/[0.04]">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="h-3 w-3 shrink-0 rounded-full bg-rose-500/80" />
+                <span className="h-3 w-3 shrink-0 rounded-full bg-amber-400/80" />
+                <span className="h-3 w-3 shrink-0 rounded-full bg-emerald-400/80" />
+                <span className="ml-2 sm:ml-3 font-mono text-xs text-white/60 truncate">jm@shakya: ~</span>
               </div>
               <button
+                type="button"
                 onClick={close}
-                className="p-1 rounded-md text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+                className="p-1.5 -mr-1 rounded-md text-white/50 hover:text-white hover:bg-white/10 active:bg-white/15 transition-colors shrink-0"
                 aria-label="Close terminal"
               >
                 <X className="w-4 h-4" />
@@ -192,7 +213,7 @@ export default function TerminalModal() {
 
             <div
               ref={scrollRef}
-              className="max-h-[300px] overflow-y-auto p-4 space-y-1 font-mono text-[13px]"
+              className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 space-y-1 font-mono text-[13px]"
             >
               {lines.map((l, i) => (
                 <p
@@ -204,7 +225,7 @@ export default function TerminalModal() {
               ))}
             </div>
 
-            <div className="flex items-center gap-2 px-4 py-3 border-t border-white/10 bg-white/[0.04]">
+            <div className="flex shrink-0 items-center gap-2 px-4 py-3 border-t border-white/10 bg-white/[0.04]">
               <span className="font-mono text-sm text-neon-cyan">{'\u203A'}</span>
               <input
                 ref={inputRef}
@@ -213,11 +234,13 @@ export default function TerminalModal() {
                 onKeyDown={onKey}
                 autoComplete="off"
                 autoCapitalize="off"
+                autoCorrect="off"
                 spellCheck={false}
+                enterKeyHint="send"
                 placeholder="type 'help'..."
-                className="flex-1 bg-transparent font-mono text-sm text-white placeholder:text-white/25 focus:outline-none"
+                className="flex-1 min-w-0 bg-transparent font-mono text-sm text-white placeholder:text-white/25 focus:outline-none"
               />
-              <span className="h-3.5 w-2 bg-neon-cyan animate-pulse" />
+              <span className="h-3.5 w-2 shrink-0 bg-neon-cyan animate-pulse" />
             </div>
           </motion.div>
         )}

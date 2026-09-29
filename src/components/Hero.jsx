@@ -63,28 +63,33 @@ export default function Hero() {
               ))}
             </div>
 
-            {/* CTAs */}
-            <div className="flex flex-wrap gap-4 mb-10">
+            {/* CTAs — full width on phones so the tap targets stay comfortable */}
+            <div className="grid grid-cols-1 sm:flex sm:flex-wrap gap-3 sm:gap-4 mb-10">
               <button
                 type="button"
                 onClick={() => window.dispatchEvent(new CustomEvent('navigate-view', { detail: 'software' }))}
-                className="btn-primary"
+                className="btn-primary w-full sm:w-auto"
               >
-                <Download className="w-5 h-5" /> Explore Software
+                <Download className="w-5 h-5 shrink-0" /> Explore Software
               </button>
               <button
                 type="button"
                 onClick={() => window.dispatchEvent(new CustomEvent('navigate-view', { detail: 'projects' }))}
-                className="btn-secondary"
+                className="btn-secondary w-full sm:w-auto"
               >
-                <FolderKanban className="w-5 h-5" /> View Projects
+                <FolderKanban className="w-5 h-5 shrink-0" /> View Projects
               </button>
             </div>
 
-            <div className="flex items-center gap-3 text-xs font-mono">
-              <Mail className="w-4 h-4 text-neon-violet" />
-              <span className="text-white/50">{PROFILE.contact.email}</span>
-            </div>
+            <a
+              href={`mailto:${PROFILE.contact.email}`}
+              className="flex items-center gap-3 text-xs sm:text-sm font-mono min-w-0 group"
+            >
+              <Mail className="w-4 h-4 text-neon-violet shrink-0" />
+              <span className="text-white/50 break-anywhere group-hover:text-neon-violet transition-colors">
+                {PROFILE.contact.email}
+              </span>
+            </a>
           </motion.div>
 
           {/* Right column - 3D profile frame */}
@@ -94,11 +99,14 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="order-1 lg:order-2 flex justify-center"
           >
-            <div className="relative" style={{ perspective: '1000px' }}>
+            {/* Scaled down on phones: the frame plus the `-inset-10` orbit ring
+                needs 336px, which was clipped by `overflow-hidden` on the
+                section below ~360px wide. */}
+            <div className="relative scale-[0.82] sm:scale-100" style={{ perspective: '1000px' }}>
               <div className="relative w-64 h-64 sm:w-80 sm:h-80 lg:w-96 lg:h-96 animate-[float_6s_ease-in-out_infinite] preserve-3d">
                 <div className="absolute -inset-6 rounded-full bg-gradient-to-r from-neon-cyan/30 via-neon-violet/30 to-neon-fuchsia/30 blur-3xl animate-[glowPulse_3s_ease-in-out_infinite]" />
                 <div className="absolute -inset-4 rounded-full border border-dashed border-neon-cyan/40 animate-[spin_16s_linear_infinite]" />
-                <div className="absolute -inset-10 rounded-full border border-dashed border-neon-violet/30 animate-[spin_24s_linear_infinite_reverse]" />
+                <div className="absolute -inset-8 sm:-inset-10 rounded-full border border-dashed border-neon-violet/30 animate-[spin_24s_linear_infinite_reverse]" />
 
                 <div className="relative w-full h-full rounded-[2rem] neon-border glass overflow-hidden shadow-[0_0_60px_rgba(0,240,255,0.15)]">
                   <div className="absolute inset-0 grid-animated opacity-60" />
@@ -110,8 +118,7 @@ export default function Hero() {
                   <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-neon-cyan rounded-br-lg" />
 
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="relative w-40 h-40 sm:w-52 sm:h-52 md:w-72 md:h-72 lg:w-80 lg:h-80 rounded-full bg-gradient-to-br from-neon-cyan to-neon-violet p-1 animate-[glowPulse_4s_ease-in-out_infinite] shadow-[0_0_60px_rgba(0,240,255,0.25)]">
-                      <div className="w-full h-full rounded-full bg-base-900 flex items-center justify-center overflow-hidden relative">
+                    <div className="relative w-40 h-40 sm:w-52 sm:h-52 md:w-72 md:h-72 lg:w-80 lg:h-80 rounded-full bg-gradient-to-br from-neon-cyan to-neon-violet p-1 animate-[glowPulse_4s_ease-in-out_infinite] shadow-[0_0_60px_rgba(0,240,255,0.25)]">                      <div className="w-full h-full rounded-full bg-base-900 flex items-center justify-center overflow-hidden relative">
                         <div className="absolute inset-0 opacity-20 grid-animated" />
                         <img
                           src={PROFILE.photo}

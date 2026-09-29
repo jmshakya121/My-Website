@@ -1,12 +1,15 @@
-import { useState, useRef } from 'react'
+import { useCallback, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { QRCodeSVG } from 'qrcode.react'
 import {
   Youtube, Instagram, Facebook, Play, ThumbsUp, Users,
   Video, X, ExternalLink, Image, ScanLine, Sparkles,
-  Download, Mail, Phone, Check,
+  Download, Mail, Phone,
 } from 'lucide-react'
 import { MEDIA, PROFILE } from '../data/profile'
+import { showToast } from '../utils/toast'
+import { copyText as copyToClipboard } from '../utils/copy'
+import { ModalBackdrop, ModalPanel } from './ModalShell.jsx'
 
 function StatBadge({ icon: Icon, value, label }) {
   return (
@@ -22,26 +25,17 @@ function StatBadge({ icon: Icon, value, label }) {
   )
 }
 
-function InstagramModal({ open, onClose }) {
-  const [toast, setToast] = useState(null)
-  const copyToast = useRef(null)
-
-  if (!open) return null
-
-  const showToast = (msg) => {
-    setToast(msg)
-    clearTimeout(copyToast.current)
-    copyToast.current = setTimeout(() => setToast(null), 2400)
-  }
-
-  const copyText = async (text, label) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      showToast(`${label} copied to clipboard!`)
-    } catch {
-      showToast('Copy failed — please copy manually.')
+function InstagramModal({ onClose }) {
+  const copyText = useCallback(async (text, label) => {
+    const ok = await copyToClipboard(text)
+    /* `showToast`'s second argument is an options *object*; passing a bare
+       string left `kind` undefined, so a failed copy rendered as a success. */
+    if (ok) {
+      showToast(`${label} copied to clipboard!`, { kind: 'copy', description: text })
+    } else {
+      showToast('Copy failed — long-press and copy manually.', { kind: 'error', description: text })
     }
-  }
+  }, [])
 
   const downloadVCard = () => {
     const vcf = [
@@ -63,39 +57,30 @@ function InstagramModal({ open, onClose }) {
     a.click()
     a.remove()
     URL.revokeObjectURL(url)
-    showToast('vCard downloaded!')
+    showToast('vCard downloaded!', { kind: 'success' })
   }
 
   return (
-    <>
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={onClose}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
-    >
-      <motion.div
-        initial={{ scale: 0.85, opacity: 0, y: 20 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.85, opacity: 0, y: 20 }}
-        transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+    <ModalBackdrop onClose={onClose} z={100} align="center">
+      <ModalPanel
         onClick={(e) => e.stopPropagation()}
-        className="relative glass-strong rounded-3xl p-8 max-w-sm w-full text-center overflow-hidden"
+        maxWidth="max-w-sm"
+        className="text-center"
       >
-        <div className="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-neon-violet/20 blur-3xl" />
-        <div className="absolute -bottom-20 -left-20 w-48 h-48 rounded-full bg-neon-cyan/20 blur-3xl" />
-
         <button
+          type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-white/60 hover:text-white transition-colors z-10"
+          className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-white/60 hover:text-white active:bg-white/[0.16] transition-colors"
           aria-label="Close"
         >
           <X className="w-4 h-4" />
         </button>
 
+        <div className="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-neon-violet/20 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-20 -left-20 w-48 h-48 rounded-full bg-neon-cyan/20 blur-3xl pointer-events-none" />
+
         <div className="relative z-10">
-          <div className="mx-auto mb-6 h-14 w-14 rounded-full bg-gradient-to-tr from-amber-400 via-fuchsia-500 to-violet-600 p-[2px] flex items-center justify-center">
+          <div className="mx-auto mb-5 h-14 w-14 rounded-full bg-gradient-to-tr from-amber-400 via-fuchsia-500 to-violet-600 p-[2px] flex items-center justify-center">
             <div className="w-full h-full rounded-full bg-base-900 flex items-center justify-center">
               <Instagram className="w-7 h-7 text-white" />
             </div>
@@ -103,11 +88,13 @@ function InstagramModal({ open, onClose }) {
 
           <ScanLine className="mx-auto mb-1 w-6 h-6 text-neon-cyan" />
           <h3 className="text-xl font-bold text-white mb-1">Scan to connect</h3>
-          <p className="text-xs text-white/50 mb-6 font-mono">@{MEDIA.instagram.handle}</p>
+          <p className="text-xs text-white/50 mb-5 font-mono break-anywhere">@{MEDIA.instagram.handle}</p>
 
+          {/* Scales down below `sm`: a fixed 200px QR + padding had zero slack
+              inside a max-w-sm sheet on a 320px phone. */}
           <div className="relative mx-auto w-fit p-3 rounded-2xl bg-[#fff] shadow-[0_0_40px_rgba(168,85,247,0.2)]">
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-neon-cyan/30 to-neon-violet/30 blur-lg -z-10" />
-            <div className="relative h-[200px] w-[200px] rounded-xl overflow-hidden bg-[#fff]">
+            <div className="relative h-[150px] w-[150px] sm:h-[190px] sm:w-[190px] rounded-xl overflow-hidden bg-[#fff]">
               <img
                 src={MEDIA.instagram.qr}
                 alt={`Instagram QR code for ${MEDIA.instagram.handle}`}
@@ -124,7 +111,7 @@ function InstagramModal({ open, onClose }) {
               >
                 <QRCodeSVG
                   value={`https://www.instagram.com/${MEDIA.instagram.handle}`}
-                  size={190}
+                  size={180}
                   level="H"
                   fgColor="#0a0a14"
                   bgColor="transparent"
@@ -133,7 +120,7 @@ function InstagramModal({ open, onClose }) {
             </div>
           </div>
 
-          <p className="mt-6 text-xs text-white/40 leading-relaxed">
+          <p className="mt-5 text-xs text-white/40 leading-relaxed">
             Open Instagram → tap the camera →
             <span className="text-neon-cyan"> scan this code</span> to follow me instantly.
           </p>
@@ -142,52 +129,38 @@ function InstagramModal({ open, onClose }) {
             href={PROFILE.social.instagram}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-fuchsia-500/30 to-violet-500/30 border border-fuchsia-400/40 hover:shadow-[0_0_30px_rgba(232,121,249,0.3)] hover:-translate-y-0.5 transition-all duration-300"
+            className="mt-5 w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-fuchsia-500/30 to-violet-500/30 border border-fuchsia-400/40 hover:shadow-[0_0_30px_rgba(232,121,249,0.3)] active:scale-[0.98] transition-all duration-300"
           >
-            <ExternalLink className="w-4 h-4" /> Open Instagram
+            <ExternalLink className="w-4 h-4 shrink-0" /> Open Instagram
           </a>
 
-          <div className="grid grid-cols-3 gap-2.5 mt-4">
+          {/* Stacks below `xs`; three 3-across buttons overflowed a 320px sheet. */}
+          <div className="grid grid-cols-3 gap-2 mt-4">
             <button
               type="button"
               onClick={downloadVCard}
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-white/80 bg-white/[0.04] border border-white/15 hover:border-neon-violet/50 hover:text-white transition-all duration-300"
+              className="inline-flex items-center justify-center gap-1.5 px-2 py-2.5 min-w-0 rounded-xl text-[11px] sm:text-xs font-semibold text-white/80 bg-white/[0.04] border border-white/15 hover:border-neon-violet/50 hover:text-white active:scale-[0.97] transition-all duration-300"
             >
-              <Download className="w-3.5 h-3.5 text-neon-violet" /> vCard
+              <Download className="w-3.5 h-3.5 text-neon-violet shrink-0" /> <span className="truncate">vCard</span>
             </button>
             <button
               type="button"
               onClick={() => copyText(PROFILE.contact.email, 'Email')}
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-white/80 bg-white/[0.04] border border-white/15 hover:border-neon-cyan/50 hover:text-white transition-all duration-300"
+              className="inline-flex items-center justify-center gap-1.5 px-2 py-2.5 min-w-0 rounded-xl text-[11px] sm:text-xs font-semibold text-white/80 bg-white/[0.04] border border-white/15 hover:border-neon-cyan/50 hover:text-white active:scale-[0.97] transition-all duration-300"
             >
-              <Mail className="w-3.5 h-3.5 text-neon-cyan" /> Email
+              <Mail className="w-3.5 h-3.5 text-neon-cyan shrink-0" /> <span className="truncate">Email</span>
             </button>
             <button
               type="button"
               onClick={() => copyText(PROFILE.contact.phone, 'Phone')}
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-white/80 bg-white/[0.04] border border-white/15 hover:border-emerald-400/50 hover:text-white transition-all duration-300"
+              className="inline-flex items-center justify-center gap-1.5 px-2 py-2.5 min-w-0 rounded-xl text-[11px] sm:text-xs font-semibold text-white/80 bg-white/[0.04] border border-white/15 hover:border-emerald-400/50 hover:text-white active:scale-[0.97] transition-all duration-300"
             >
-              <Phone className="w-3.5 h-3.5 text-emerald-400" /> Phone
+              <Phone className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> <span className="truncate">Phone</span>
             </button>
           </div>
         </div>
-      </motion.div>
-    </motion.div>
-
-    <AnimatePresence>
-      {toast && (
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 12 }}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[130] flex items-center gap-2 px-4 py-2.5 rounded-xl glass-strong border border-neon-cyan/40 text-sm text-white font-mono text-center shadow-2xl"
-        >
-          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-          {toast}
-        </motion.div>
-      )}
-    </AnimatePresence>
-    </>
+      </ModalPanel>
+    </ModalBackdrop>
   )
 }
 
@@ -195,7 +168,7 @@ export default function Connect() {
   const [igOpen, setIgOpen] = useState(false)
 
   return (
-    <section id="connect" className="relative pt-16 pb-20 overflow-hidden">
+    <section id="connect" className="relative pt-20 sm:pt-24 pb-16 sm:pb-20 overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(232,121,249,0.05),transparent_55%)]" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
         <motion.div
@@ -227,7 +200,7 @@ export default function Connect() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.6 }}
-            className="group relative glass rounded-3xl p-8 overflow-hidden hover:-translate-y-2 transition-transform duration-500"
+            className="group relative glass rounded-3xl p-5 sm:p-8 overflow-hidden hover:-translate-y-2 transition-transform duration-500 active:scale-[0.99]"
           >
             <div className="absolute -top-16 -right-16 w-44 h-44 rounded-full bg-red-500/15 blur-3xl group-hover:bg-red-500/25 transition-colors duration-500" />
             <div className="relative z-10 flex flex-col h-full">
@@ -277,7 +250,7 @@ export default function Connect() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="group relative glass rounded-3xl p-8 overflow-hidden hover:-translate-y-2 transition-transform duration-500 text-left"
+            className="group relative glass rounded-3xl p-5 sm:p-8 overflow-hidden hover:-translate-y-2 transition-transform duration-500 active:scale-[0.99] text-left"
           >
             <div className="absolute -top-16 -left-16 w-44 h-44 rounded-full bg-fuchsia-500/20 blur-3xl group-hover:bg-fuchsia-500/35 transition-colors duration-500" />
             <div className="relative z-10 flex flex-col h-full">
@@ -329,7 +302,7 @@ export default function Connect() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="group relative glass rounded-3xl p-8 overflow-hidden hover:-translate-y-2 transition-transform duration-500"
+            className="group relative glass rounded-3xl p-5 sm:p-8 overflow-hidden hover:-translate-y-2 transition-transform duration-500 active:scale-[0.99]"
           >
             <div className="absolute -bottom-16 -right-16 w-44 h-44 rounded-full bg-blue-600/20 blur-3xl group-hover:bg-blue-600/35 transition-colors duration-500" />
             <div className="relative z-10 flex flex-col h-full">
@@ -372,7 +345,7 @@ export default function Connect() {
       </div>
 
       <AnimatePresence>
-        {igOpen && <InstagramModal open={igOpen} onClose={() => setIgOpen(false)} />}
+        {igOpen && <InstagramModal onClose={() => setIgOpen(false)} />}
       </AnimatePresence>
     </section>
   )

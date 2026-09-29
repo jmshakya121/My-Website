@@ -16,6 +16,7 @@ const socials = [
 const quickLinks = [
   { label: 'Dashboard', target: 'dashboard' },
   { label: 'Software Utilities', target: 'software' },
+  { label: 'Web Utilities', target: 'utilities' },
   { label: 'Projects', target: 'projects' },
   { label: 'Connect', target: 'connect' },
   { label: 'Contact', target: 'contact' },
@@ -25,10 +26,10 @@ export default function Footer() {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="relative border-t border-white/10 pt-16 pb-8 overflow-hidden">
+    <footer className="relative border-t border-white/10 pt-12 sm:pt-16 pb-8 pb-safe overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(168,85,247,0.05),transparent_60%)]" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
-        <div className="grid md:grid-cols-4 gap-10 mb-12">
+        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 mb-12">
           {/* Brand */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -50,12 +51,16 @@ export default function Footer() {
               {PROFILE.title} from {PROFILE.location}. Crafting modern web software,
               interactive 3D web experiences, and developer tools.
             </p>
-            <div className="flex items-center gap-3 text-xs text-white/40 font-mono flex-wrap">
-              <span className="flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-neon-cyan" /> {PROFILE.location}, {PROFILE.postalCode}
+            <div className="flex items-center gap-3 text-xs text-white/40 font-mono flex-wrap min-w-0">
+              <span className="flex items-center gap-1.5 min-w-0">
+                <MapPin className="w-3.5 h-3.5 text-neon-cyan shrink-0" /> {PROFILE.location}, {PROFILE.postalCode}
               </span>
-              <span className="flex items-center gap-1.5">
-                <Mail className="w-3.5 h-3.5 text-neon-violet" /> {PROFILE.contact.email}
+              {/* Unbroken email strings forced horizontal scroll on ~320px
+                  viewports because the flex row could not shrink below the
+                  intrinsic text width. */}
+              <span className="flex items-center gap-1.5 min-w-0">
+                <Mail className="w-3.5 h-3.5 text-neon-violet shrink-0" />
+                <span className="break-anywhere">{PROFILE.contact.email}</span>
               </span>
             </div>
           </motion.div>
@@ -108,9 +113,9 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className={`flex h-10 w-10 items-center justify-center rounded-xl glass ${color} transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(0,240,255,0.2)]`}
+                  className={`flex h-10 w-10 items-center justify-center rounded-xl glass ${color} transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(0,240,255,0.2)] active:scale-95`}
                 >
-                  <Icon className="w-4.5 h-4.5 w-5 h-5" />
+                  <Icon className="w-5 h-5" />
                 </a>
               ))}
             </div>
@@ -126,13 +131,13 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-white/40 flex items-center gap-1.5 text-center">
+        <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+          <p className="text-xs text-white/40 flex items-center gap-1.5 flex-wrap justify-center">
             © {year} <span className="font-semibold text-white/70">JM Shakya</span>&nbsp;·&nbsp;
-            <Globe className="w-3 h-3 text-neon-cyan" /> {PROFILE.domain}
-            </p>
-          <p className="text-xs text-white/30 flex items-center gap-1.5">
-            Crafted with <Heart className="w-3.5 h-3.5 text-red-400 fill-red-400" /> React
+            <Globe className="w-3 h-3 text-neon-cyan shrink-0" /> {PROFILE.domain}
+          </p>
+          <p className="text-xs text-white/30 flex items-center gap-1.5 flex-wrap justify-center">
+            Crafted with <Heart className="w-3.5 h-3.5 text-red-400 fill-red-400 shrink-0" /> React
             + Three.js · 3D WebGL · Bagbazar, Kathmandu
           </p>
         </div>

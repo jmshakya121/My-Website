@@ -58,6 +58,7 @@ export const SOFTWARE_ITEMS = [
     title: '1-Click Windows Temp & Junk Cleaner',
     category: 'System Utility',
     size: '1.4 KB',
+    statusLabel: 'Temp & Junk Cleaner',
     endpoint: 'Operational',
     health: 100,
     description:
@@ -70,6 +71,7 @@ export const SOFTWARE_ITEMS = [
     title: '1-Click Network & System Optimizer',
     category: 'Network & Optimization',
     size: '1.4 KB',
+    statusLabel: 'Network & System Optimizer',
     endpoint: 'Operational',
     health: 100,
     description:
@@ -82,6 +84,7 @@ export const SOFTWARE_ITEMS = [
     title: 'Windows.old Storage Remover',
     category: 'Disk Storage',
     size: '1.5 KB',
+    statusLabel: 'Windows.old Remover',
     endpoint: 'Stable',
     health: 98,
     description:
@@ -94,6 +97,7 @@ export const SOFTWARE_ITEMS = [
     title: 'Office Activator Utility',
     category: 'Automation Utility',
     size: '744 KB',
+    statusLabel: 'Office Activator',
     endpoint: 'Operational',
     health: 100,
     description:
@@ -106,6 +110,7 @@ export const SOFTWARE_ITEMS = [
     title: 'Windows Activator Utility',
     category: 'Automation Utility',
     size: '744 KB',
+    statusLabel: 'Windows Activator',
     endpoint: 'Operational',
     health: 100,
     description:
@@ -118,6 +123,7 @@ export const SOFTWARE_ITEMS = [
     title: 'Universal Hardware Driver Installer',
     category: 'System Utility',
     size: '5 MB',
+    statusLabel: 'Driver Pack Installer',
     endpoint: 'Operational',
     health: 99,
     description:

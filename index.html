@@ -3,21 +3,51 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover"
+    />
     <meta name="description" content="JM Shakya - Computer Science Student & Full-Stack Developer crafting modern web software & interactive 3D web experiences." />
+    <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#05050a" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>JM Shakya | Full-Stack Developer & 3D Web Experiences</title>
     <script>
       try {
         if (localStorage.getItem('jm-theme') === 'light') {
           document.documentElement.classList.add('light')
         }
+        // Stash the resolved theme so the pre-paint theme-color matches and
+        // mobile browser chrome doesn't flash the wrong shade.
+        var t = document.documentElement.classList.contains('light') ? '#f1f5f9' : '#05050a'
+        document
+          .querySelector('meta[name="theme-color"]')
+          .setAttribute('content', t)
       } catch (e) {}
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-    <script src="https://pl31260084.profitableratecpmnetwork.com/0a/c7/66/0ac7661636c8ab29135963f2faeb76bf.js"></script>
+    <!-- Loaded without blocking first paint: a render-blocking third-party
+         stylesheet is a guaranteed FCP/LCP regression on mobile networks. -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all';this.onload=null"
+    />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
+    <!-- `async` so the ad tag never stalls HTML parsing / first paint. -->
+    <script
+      async
+      src="https://pl31260084.profitableratecpmnetwork.com/0a/c7/66/0ac7661636c8ab29135963f2faeb76bf.js"
+    ></script>
   </head>
   <body>
     <div id="root"></div>

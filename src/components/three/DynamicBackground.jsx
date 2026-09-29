@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Sparkles, Float, AdaptiveDpr } from '@react-three/drei'
 import * as THREE from 'three'
@@ -39,9 +39,22 @@ const STAR_FRAG = `
 function detectMode() {
   if (typeof window === 'undefined') return 'off'
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return 'off'
-  if (/Android|iPhone|iPad|Mobi|Mobile/i.test(navigator.userAgent)) return 'off'
+
+  // The scene is framed for a landscape desktop canvas. On a narrow viewport
+  // the earth sphere sits outside the vertical FOV, so all the GPU work buys
+  // nothing — turn it off regardless of user agent.
+  if (window.matchMedia && window.matchMedia('(max-width: 900px), (hover: none), (pointer: coarse)').matches) {
+    return 'off'
+  }
+
+  if (/Android|iPhone|iPad|iPod|Mobi|Mobile|Silk|Kindle|Opera Mini/i.test(navigator.userAgent)) {
+    return 'off'
+  }
+  if (navigator.userAgentData && navigator.userAgentData.mobile) return 'off'
+
   const cores = navigator.hardwareConcurrency || 8
-  if (cores <= 4) return 'lite'
+  const memory = navigator.deviceMemory || 8
+  if (cores <= 4 || memory <= 4) return 'lite'
   return 'full'
 }
 
@@ -439,6 +452,15 @@ export default function DynamicBackground({ theme = 'dark' }) {
   const palette = PALETTES[theme] || PALETTES.dark
   const pointer = usePointer()
   const darkMode = theme === 'dark'
+  const [pageVisible, setPageVisible] = useState(true)
+
+  // Stop burning GPU while the tab is in the background — otherwise a phone
+  // with this site pinned in a background tab keeps rendering at full rate.
+  useEffect(() => {
+    const onVisibility = () => setPageVisible(document.visibilityState === 'visible')
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => document.removeEventListener('visibilitychange', onVisibility)
+  }, [])
 
   if (mode === 'off') return null
 
@@ -448,10 +470,16 @@ export default function DynamicBackground({ theme = 'dark' }) {
   return (
     <div className="pointer-events-none fixed inset-0 z-0" aria-hidden="true">
       <Canvas
-        dpr={[1, 1.5]}
-        frameloop="always"
+        dpr={mode === 'lite' ? [1, 1.25] : [1, 1.5]}
+        frameloop={pageVisible ? 'always' : 'never'}
         camera={{ position: [0, 0, 5.4], fov: 60 }}
-        gl={{ antialias: true, alpha: true, powerPreference: 'high-performance', stencil: false }}
+        gl={{
+          antialias: mode !== 'lite',
+          alpha: true,
+          powerPreference: 'high-performance',
+          stencil: false,
+          depth: true,
+        }}
       >
         <AdaptiveDpr pixelated />
         <BgScene

@@ -1,10 +1,12 @@
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+import { motion } from 'framer-motion'
 import {
   Send, MessageCircle, CheckCircle2, Zap, ShieldCheck, Code2,
   Mail, MapPin, Linkedin, AlertCircle, ChevronDown, Copy, Check,
 } from 'lucide-react'
 import { PROFILE, HIRE, WHATSAPP_LINK } from '../data/profile'
+import { copyText } from '../utils/copy'
+import { showToast } from '../utils/toast'
 
 const trustIcons = [Zap, ShieldCheck, Code2]
 
@@ -168,13 +170,21 @@ function IntakeForm() {
 
 export default function ContactSection() {
   const [copiedEmail, setCopiedEmail] = useState(false)
+  const timerRef = useRef(null)
+
+  useEffect(() => () => clearTimeout(timerRef.current), [])
 
   const copyEmail = async () => {
-    try {
-      await navigator.clipboard.writeText(PROFILE.contact.email)
+    const ok = await copyText(PROFILE.contact.email)
+    if (ok) {
       setCopiedEmail(true)
-      setTimeout(() => setCopiedEmail(false), 2000)
-    } catch {
+      showToast('Email copied to clipboard', { kind: 'copy', description: PROFILE.contact.email })
+      clearTimeout(timerRef.current)
+      timerRef.current = setTimeout(() => setCopiedEmail(false), 2500)
+    } else {
+      // Clipboard blocked (insecure context, permissions) — fall back to the
+      // mail client rather than silently doing nothing.
+      showToast('Clipboard unavailable — opening your mail app', { kind: 'info' })
       window.location.href = `mailto:${PROFILE.contact.email}`
     }
   }
@@ -242,7 +252,7 @@ export default function ContactSection() {
               href={WHATSAPP_LINK}
               target="_blank"
               rel="noopener noreferrer"
-              className="block glass rounded-2xl p-5 hover:border-emerald-400/50 hover:-translate-y-1 transition-all duration-300 group"
+              className="block glass rounded-2xl p-5 hover:border-emerald-400/50 hover:-translate-y-1 active:scale-[0.99] transition-all duration-300 group"
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-xl mb-4 border border-emerald-400/30 bg-emerald-500/10">
                 <MessageCircle className="w-5 h-5 text-emerald-400" />
@@ -257,7 +267,7 @@ export default function ContactSection() {
                 href={PROFILE.social.telegram}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block glass rounded-2xl p-5 hover:border-sky-400/50 hover:-translate-y-1 transition-all duration-300 group"
+                className="block glass rounded-2xl p-5 hover:border-sky-400/50 hover:-translate-y-1 active:scale-[0.99] transition-all duration-300 group"
               >
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl mb-4 border border-sky-400/30 bg-sky-500/10">
                   <Send className="w-5 h-5 text-sky-400" />
@@ -270,7 +280,7 @@ export default function ContactSection() {
 
             <a
               href={`mailto:${PROFILE.contact.email}`}
-              className="block glass rounded-2xl p-5 hover:border-neon-violet/50 hover:-translate-y-1 transition-all duration-300 group"
+              className="block glass rounded-2xl p-5 hover:border-neon-violet/50 hover:-translate-y-1 active:scale-[0.99] transition-all duration-300 group"
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-xl mb-4 border border-neon-violet/30 bg-neon-violet/10">
                 <Mail className="w-5 h-5 text-neon-violet" />
@@ -282,7 +292,7 @@ export default function ContactSection() {
             <button
               type="button"
               onClick={copyEmail}
-              className="w-full flex items-center justify-between gap-3 glass rounded-2xl p-5 hover:border-neon-cyan/50 hover:-translate-y-1 transition-all duration-300 group text-left"
+              className="w-full flex items-center justify-between gap-3 glass rounded-2xl p-5 hover:border-neon-cyan/50 hover:-translate-y-1 active:scale-[0.99] transition-all duration-300 group text-left"
             >
               <span className="inline-flex items-center gap-3">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-neon-cyan/30 bg-neon-cyan/10">
@@ -319,7 +329,7 @@ export default function ContactSection() {
                 href={PROFILE.social.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block glass rounded-2xl p-5 hover:border-sky-400/50 hover:-translate-y-1 transition-all duration-300 group"
+                className="block glass rounded-2xl p-5 hover:border-sky-400/50 hover:-translate-y-1 active:scale-[0.99] transition-all duration-300 group"
               >
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl mb-4 border border-sky-400/30 bg-sky-500/10">
                   <Linkedin className="w-5 h-5 text-sky-400" />
@@ -346,19 +356,6 @@ export default function ContactSection() {
           </motion.div>
         </div>
       </div>
-
-      <AnimatePresence>
-        {copiedEmail && (
-          <motion.div
-            initial={{ opacity: 0, y: 24, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 12, scale: 0.95 }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[150] flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-white bg-base-800/90 backdrop-blur-xl border border-neon-cyan/50 shadow-[0_0_30px_rgba(0,240,255,0.25)]"
-          >
-            <Check className="w-4 h-4 text-emerald-400" /> Email copied to clipboard!
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   )
 }

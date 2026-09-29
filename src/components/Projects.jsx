@@ -6,6 +6,7 @@ import {
   Braces, ChevronDown, ChevronUp, Workflow, Network, Server,
 } from 'lucide-react'
 import { PROJECTS } from '../data/profile'
+import { useHoverCapable } from '../hooks/useMediaQuery'
 
 const featureIcons = {
   'Workflow Automation': Zap,
@@ -40,57 +41,65 @@ const mockTickets = [
   { id: 'TKT-1026', title: 'VPN access for new hire', tag: 'Low', status: 'open' },
 ]
 
+const RESTING_TILT = 'perspective(1000px) rotateX(0deg) rotateY(0deg)'
+
 function TiltCard() {
   const ref = useRef(null)
-  const [transform, setTransform] = useState('perspective(1000px) rotateX(0deg) rotateY(0deg)')
+  const canHover = useHoverCapable()
+  const [transform, setTransform] = useState(RESTING_TILT)
   const [detailOpen, setDetailOpen] = useState(false)
-
-  const onMove = useCallback((e) => {
-    const el = ref.current
-    if (!el) return
-    const rect = el.getBoundingClientRect()
-    const px = (e.clientX - rect.left) / rect.width
-    const py = (e.clientY - rect.top) / rect.height
-    const rx = ((py - 0.5) * -10).toFixed(2)
-    const ry = ((px - 0.5) * 12).toFixed(2)
-    setTransform(`perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg)`)
-  }, [])
-
-  const onLeave = useCallback(() => {
-    setTransform('perspective(1000px) rotateX(0deg) rotateY(0deg)')
-  }, [])
-
   const [glow, setGlow] = useState({ x: 50, y: 50 })
 
-  const onGlowMove = useCallback((e) => {
-    const el = ref.current
-    if (!el) return
-    const rect = el.getBoundingClientRect()
-    setGlow({
-      x: ((e.clientX - rect.left) / rect.width) * 100,
-      y: ((e.clientY - rect.top) / rect.height) * 100,
-    })
+  const reset = useCallback(() => {
+    setTransform(RESTING_TILT)
+    setGlow({ x: 50, y: 50 })
   }, [])
+
+  /* Mouse-only pointer tracking. React's onMouseMove also fires for the
+     synthetic mouse events a tap emits on iOS/Android, and those never emit a
+     mouseleave — the card stayed frozen mid-rotation until you tapped
+     elsewhere. Pointer events give us pointerType plus cancel/up to reset. */
+  const onPointerMove = useCallback(
+    (e) => {
+      if (!canHover || e.pointerType !== 'mouse') return
+      const el = ref.current
+      if (!el) return
+      const rect = el.getBoundingClientRect()
+      if (!rect.width || !rect.height) return
+      const px = (e.clientX - rect.left) / rect.width
+      const py = (e.clientY - rect.top) / rect.height
+      setTransform(
+        `perspective(1000px) rotateX(${((py - 0.5) * -10).toFixed(2)}deg) rotateY(${((px - 0.5) * 12).toFixed(2)}deg)`
+      )
+      setGlow({ x: px * 100, y: py * 100 })
+    },
+    [canHover]
+  )
 
   return (
     <div
       ref={ref}
       className="tilt-card relative w-full max-w-4xl mx-auto group"
-      style={{ transform, transition: 'transform 0.15s ease-out' }}
-      onMouseMove={(e) => { onMove(e); onGlowMove(e) }}
-      onMouseLeave={onLeave}
+      style={{ transform, transition: 'transform 0.15s ease-out', willChange: canHover ? 'transform' : 'auto' }}
+      onPointerMove={onPointerMove}
+      onPointerLeave={reset}
+      onPointerCancel={reset}
+      onPointerUp={reset}
+      onTouchEnd={reset}
     >
-      <div
-        className="pointer-events-none absolute -inset-8 rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-3xl"
-        style={{
-          background: `radial-gradient(600px circle at ${glow.x}% ${glow.y}%, rgba(0,240,255,0.18), rgba(168,85,247,0.12), transparent 50%)`,
-        }}
-      />
+      {canHover && (
+        <div
+          className="pointer-events-none absolute -inset-8 rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-3xl"
+          style={{
+            background: `radial-gradient(600px circle at ${glow.x}% ${glow.y}%, rgba(0,240,255,0.18), rgba(168,85,247,0.12), transparent 50%)`,
+          }}
+        />
+      )}
 
       <div className="relative glass rounded-[2rem] overflow-hidden border-white/10">
         <div className="grid lg:grid-cols-5">
           {/* Visual side */}
-          <div className="lg:col-span-2 relative p-8 lg:p-10 flex flex-col justify-between min-h-[280px] overflow-hidden">
+          <div className="lg:col-span-2 relative p-5 sm:p-6 lg:p-10 flex flex-col justify-between min-h-[240px] sm:min-h-[280px] overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(0,240,255,0.12),transparent_60%)]" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_90%,rgba(168,85,247,0.12),transparent_60%)]" />
             <div className="absolute inset-0 grid-animated opacity-40" />
@@ -114,14 +123,14 @@ function TiltCard() {
               {mockTickets.map((t) => (
                 <div
                   key={t.id}
-                  className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-lg bg-white/[0.04] border border-white/10 backdrop-blur-md"
+                  className="flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 rounded-lg bg-white/[0.04] border border-white/10 backdrop-blur-md"
                 >
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-[11px] font-mono text-neon-cyan">{t.id}</p>
-                    <p className="text-xs text-white/80 truncate max-w-[160px]">{t.title}</p>
+                    <p className="text-xs text-white/80 truncate">{t.title}</p>
                   </div>
                   <span
-                    className={`px-2 py-0.5 rounded-full text-[9px] font-mono border ${
+                    className={`shrink-0 px-2 py-0.5 rounded-full text-[9px] font-mono border ${
                       t.status === 'progress'
                         ? 'text-neon-violet border-neon-violet/40 bg-neon-violet/10'
                         : t.tag === 'High'
@@ -146,7 +155,7 @@ function TiltCard() {
           </div>
 
           {/* Content side */}
-          <div className="lg:col-span-3 p-8 lg:p-10 flex flex-col justify-center relative">
+          <div className="lg:col-span-3 p-5 sm:p-6 lg:p-10 flex flex-col justify-center relative">
             <div className="mb-6">
               <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2">
                 {PROJECTS.spotlight.name}
@@ -175,11 +184,11 @@ function TiltCard() {
               })}
             </div>
 
-            <div className="grid grid-cols-3 gap-3 mb-6">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
               {PROJECTS.spotlight.stats.map((s) => (
-                <div key={s.label} className="text-center px-2 py-3 rounded-xl bg-white/[0.03] border border-white/10">
+                <div key={s.label} className="min-w-0 text-center px-1 sm:px-2 py-3 rounded-xl bg-white/[0.03] border border-white/10">
                   <p className="text-xl font-bold font-mono neon-text">{s.value}</p>
-                  <p className="text-[10px] text-white/50 uppercase tracking-wide mt-1">{s.label}</p>
+                  <p className="text-[9px] sm:text-[10px] text-white/50 uppercase tracking-wide mt-1 break-anywhere">{s.label}</p>
                 </div>
               ))}
             </div>
@@ -224,7 +233,7 @@ function TiltCard() {
                 >
                   <div className="mt-6 grid md:grid-cols-3 gap-5">
                     {/* Tech stack */}
-                    <div className="glass rounded-2xl p-6 border-white/10">
+                    <div className="glass rounded-2xl p-5 sm:p-6 border-white/10">
                       <div className="flex items-center gap-2.5 mb-4">
                         <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-neon-cyan/10 border border-neon-cyan/30">
                           <Server className="w-4 h-4 text-neon-cyan" />
@@ -244,7 +253,7 @@ function TiltCard() {
                     </div>
 
                     {/* Workflow automation */}
-                    <div className="glass rounded-2xl p-6 border-white/10">
+                    <div className="glass rounded-2xl p-5 sm:p-6 border-white/10">
                       <div className="flex items-center gap-2.5 mb-4">
                         <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-neon-violet/10 border border-neon-violet/30">
                           <Workflow className="w-4 h-4 text-neon-violet" />
@@ -262,7 +271,7 @@ function TiltCard() {
                     </div>
 
                     {/* Routing architecture */}
-                    <div className="glass rounded-2xl p-6 border-white/10">
+                    <div className="glass rounded-2xl p-5 sm:p-6 border-white/10">
                       <div className="flex items-center gap-2.5 mb-4">
                         <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-neon-fuchsia/10 border border-neon-fuchsia/30">
                           <Network className="w-4 h-4 text-neon-fuchsia" />
@@ -297,7 +306,7 @@ function TiltCard() {
 
 export default function Projects() {
   return (
-    <section id="projects" className="relative pt-16 pb-20 overflow-hidden">
+    <section id="projects" className="relative pt-20 sm:pt-24 pb-16 sm:pb-20 overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(0,240,255,0.06),transparent_50%)]" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
         <motion.div

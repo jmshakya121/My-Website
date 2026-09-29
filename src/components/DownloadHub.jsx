@@ -8,7 +8,10 @@ import {
   HeartPulse, Terminal,
 } from 'lucide-react'
 import { SOFTWARE_ITEMS } from '../data/profile'
+import { showToast } from '../utils/toast'
+import { copyText } from '../utils/copy'
 import TiltCard from './TiltCard.jsx'
+import { ModalBackdrop, ModalPanel, ModalHeader } from './ModalShell.jsx'
 
 const SCRIPT_TYPES = ['.cmd', '.bat', '.sh', '.ps1']
 
@@ -160,40 +163,33 @@ function GateModal({ item, onClose }) {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={onClose}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
-    >
-      <motion.div
-        initial={{ scale: 0.85, opacity: 0, y: 20 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.85, opacity: 0, y: 20 }}
-        transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+    <ModalBackdrop onClose={onClose} z={100} align="center">
+      <ModalPanel
         onClick={(e) => e.stopPropagation()}
-        className="relative glass-strong rounded-3xl p-8 w-full max-w-md text-center overflow-hidden"
+        maxWidth="max-w-md"
+        className="!bg-transparent !border-transparent !backdrop-blur-none !shadow-none"
       >
-        <div className="absolute -top-24 -right-24 w-56 h-56 rounded-full bg-neon-violet/20 blur-3xl" />
-        <div className="absolute -bottom-24 -left-24 w-56 h-56 rounded-full bg-neon-cyan/20 blur-3xl" />
+        <div className="relative glass-strong border border-white/10 rounded-t-3xl sm:rounded-3xl p-5 sm:p-8 text-center overflow-hidden">
+          <div className="absolute -top-24 -right-24 w-56 h-56 rounded-full bg-neon-violet/20 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -left-24 w-56 h-56 rounded-full bg-neon-cyan/20 blur-3xl pointer-events-none" />
 
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-white/60 hover:text-white transition-colors z-10"
-          aria-label="Close"
-        >
-          <X className="w-4 h-4" />
-        </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute top-3 right-3 p-2 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-white/60 hover:text-white active:bg-white/[0.16] transition-colors z-10"
+            aria-label="Close"
+          >
+            <X className="w-4 h-4" />
+          </button>
 
-        <div className="relative z-10">
-          <div className="mx-auto mb-5 h-14 w-14 rounded-2xl bg-white/[0.05] border border-white/15 flex items-center justify-center">
-            <FileCode2 className="w-7 h-7 text-neon-cyan" />
-          </div>
-          <h3 className="text-xl font-bold text-white mb-1">{nameOf(item)}</h3>
-          <p className="text-xs text-white/50 mb-6 font-mono">
-            {typeOf(item)} · {item.size || '—'} · Secure unlock
-          </p>
+          <div className="relative z-10">
+            <div className="mx-auto mb-5 h-14 w-14 rounded-2xl bg-white/[0.05] border border-white/15 flex items-center justify-center">
+              <FileCode2 className="w-7 h-7 text-neon-cyan" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-1 break-anywhere">{nameOf(item)}</h3>
+            <p className="text-xs text-white/50 mb-6 font-mono break-anywhere">
+              {typeOf(item)} · {item.size || '—'} · Secure unlock
+            </p>
 
           {/* STEP 1: countdown + bot check */}
           {!unlocked ? (
@@ -220,7 +216,6 @@ function GateModal({ item, onClose }) {
 
               <motion.button
                 type="button"
-                whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => setBot((b) => !b)}
                 className={`w-full flex items-center justify-center gap-3 px-5 py-3.5 rounded-xl border text-sm font-medium transition-all duration-300 ${
@@ -242,11 +237,10 @@ function GateModal({ item, onClose }) {
 
               <motion.button
                 type="button"
-                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={handleUnlock}
                 disabled={!ready}
-                className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-neon-cyan/25 to-neon-violet/25 border border-neon-cyan/50 transition-all duration-300 disabled:opacity-35 disabled:cursor-not-allowed enabled:hover:shadow-[0_0_30px_rgba(0,240,255,0.35)] enabled:hover:-translate-y-0.5"
+                className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-neon-cyan/25 to-neon-violet/25 border border-neon-cyan/50 transition-all duration-300 disabled:opacity-35 disabled:cursor-not-allowed enabled:hover:shadow-[0_0_30px_rgba(0,240,255,0.35)] enabled:active:scale-[0.98]"
               >
                 {primaryUrl ? <Rocket className="w-4 h-4 text-neon-cyan" /> : <Unlock className="w-4 h-4 text-neon-cyan" />}
                 {count > 0 ? `Unlocks in ${count}s` : bot ? 'Unlock Download' : 'Verify below to unlock'}
@@ -259,7 +253,7 @@ function GateModal({ item, onClose }) {
                 <button
                   type="button"
                   onClick={handleSecureDownload}
-                  className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500/20 to-neon-violet/20 border border-emerald-400/40 hover:shadow-[0_0_25px_rgba(52,211,153,0.3)] hover:-translate-y-0.5 transition-all duration-300"
+                  className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500/20 to-neon-violet/20 border border-emerald-400/40 hover:shadow-[0_0_25px_rgba(52,211,153,0.3)] active:scale-[0.98] transition-all duration-300"
                 >
                   <Rocket className="w-4 h-4 text-emerald-400" />
                   Open Secure Download Link
@@ -271,7 +265,7 @@ function GateModal({ item, onClose }) {
                   href={releaseUrlOf(item)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500/20 to-neon-violet/20 border border-emerald-400/40 hover:shadow-[0_0_25px_rgba(52,211,153,0.3)] hover:-translate-y-0.5 transition-all duration-300"
+                  className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500/20 to-neon-violet/20 border border-emerald-400/40 hover:shadow-[0_0_25px_rgba(52,211,153,0.3)] active:scale-[0.98] transition-all duration-300"
                 >
                   <Rocket className="w-4 h-4 text-emerald-400" />
                   Download via GitHub Releases
@@ -319,14 +313,15 @@ function GateModal({ item, onClose }) {
               )}
 
               <p className="flex items-center justify-center gap-1.5 text-[11px] text-white/40">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                Unlocked · {item.size || '—'} · power-user script
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span className="break-anywhere text-center">Unlocked · {item.size || '—'} · power-user script</span>
               </p>
             </div>
           )}
+          </div>
         </div>
-      </motion.div>
-    </motion.div>
+      </ModalPanel>
+    </ModalBackdrop>
   )
 }
 
@@ -410,90 +405,70 @@ function CodePreviewModal({ item, onClose }) {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={onClose}
-      className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
-    >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0, y: 20 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+    <ModalBackdrop onClose={onClose} z={120} align="center">
+      <ModalPanel
         onClick={(e) => e.stopPropagation()}
-        className="relative glass-strong rounded-3xl w-full max-w-2xl overflow-hidden"
+        maxWidth="max-w-2xl"
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-white/[0.04]">
-          <div className="flex items-center gap-3 min-w-0">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neon-cyan/10 border border-neon-cyan/30">
-              <FileCode2 className="w-4 h-4 text-neon-cyan" />
-            </span>
-            <div className="min-w-0">
-              <h3 className="text-sm font-bold text-white truncate">{nameOf(item)}</h3>
-              <p className="text-[11px] font-mono text-white/40">{item.id}{typeOf(item)}</p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-white/60 hover:text-white transition-colors ml-3"
-            aria-label="Close preview"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+        <ModalHeader
+          icon={FileCode2}
+          title={nameOf(item)}
+          subtitle={`${item.id}${typeOf(item)}`}
+          onClose={onClose}
+          closeLabel="Close preview"
+        />
 
-        <div className="px-5 py-3 flex flex-wrap items-center gap-3 border-b border-white/5">
+        <div className="shrink-0 px-4 sm:px-5 py-3 flex flex-wrap items-center gap-2.5 border-b border-white/5">
           <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.95 }}
+            whileTap={{ scale: 0.97 }}
             onClick={secureDownload}
-            className="inline-flex items-center gap-2 px-4 py-2.5 min-h-12 rounded-lg text-sm font-bold text-white bg-gradient-to-r from-neon-cyan/25 to-neon-violet/25 border border-neon-cyan/50 shadow-[0_0_25px_rgba(0,240,255,0.15)] hover:shadow-[0_0_35px_rgba(0,240,255,0.3)] hover:-translate-y-0.5 transition-all duration-300"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-12 rounded-lg text-sm font-bold text-white bg-gradient-to-r from-neon-cyan/25 to-neon-violet/25 border border-neon-cyan/50 shadow-[0_0_25px_rgba(0,240,255,0.15)] hover:shadow-[0_0_35px_rgba(0,240,255,0.3)] active:scale-[0.98] transition-all duration-300"
           >
-            <Rocket className="w-4 h-4 text-neon-cyan" /> Download Script
+            <Rocket className="w-4 h-4 text-neon-cyan shrink-0" /> Download Script
           </motion.button>
           <motion.button
-            whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={copyPreview}
-            className="inline-flex items-center gap-2 px-3.5 py-2.5 min-h-12 rounded-lg text-xs font-semibold text-white bg-white/[0.05] border border-white/15 hover:border-neon-cyan/50 transition-all duration-300"
+            className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 min-h-12 rounded-lg text-xs font-semibold text-white bg-white/[0.05] border border-white/15 hover:border-neon-cyan/50 active:scale-[0.98] transition-colors duration-300"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-neon-cyan" />}
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> : <Copy className="w-3.5 h-3.5 text-neon-cyan shrink-0" />}
             {copied ? 'Copied!' : 'Copy Raw Code'}
           </motion.button>
           {isDirectFile(fileUrlOf(item), typeOf(item)) ? (
             <motion.button
-              whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => directDownload(item)}
-              className="inline-flex items-center gap-2 px-3.5 py-2.5 min-h-12 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-emerald-500/20 to-neon-violet/20 border border-emerald-400/40 hover:shadow-[0_0_25px_rgba(52,211,153,0.25)] transition-all duration-300"
+              className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 min-h-12 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-emerald-500/20 to-neon-violet/20 border border-emerald-400/40 hover:shadow-[0_0_25px_rgba(52,211,153,0.25)] active:scale-[0.98] transition-all duration-300"
             >
-              <Download className="w-3.5 h-3.5 text-emerald-400" /> Download {typeOf(item)}
+              <Download className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> Download {typeOf(item)}
             </motion.button>
           ) : (
             <a
               href={releaseUrlOf(item)}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-emerald-500/20 to-neon-violet/20 border border-emerald-400/40 hover:shadow-[0_0_25px_rgba(52,211,153,0.25)] hover:-translate-y-0.5 transition-all duration-300"
+              className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 min-h-12 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-emerald-500/20 to-neon-violet/20 border border-emerald-400/40 hover:shadow-[0_0_25px_rgba(52,211,153,0.25)] active:scale-[0.98] transition-all duration-300"
             >
-              <ExternalLink className="w-3.5 h-3.5 text-emerald-400" /> Get from GitHub
+              <ExternalLink className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> Get from GitHub
             </a>
           )}
           {note && (
-            <span className="text-[11px] text-amber-300/80 font-mono ml-auto">{note}</span>
+            <span className="w-full text-[11px] text-amber-300/80 font-mono break-anywhere">{note}</span>
           )}
         </div>
 
-        <pre
-          className="p-5 text-[13px] font-mono leading-relaxed text-white/90 overflow-auto max-h-[380px] select-text"
-          dangerouslySetInnerHTML={{
-            __html: loading ? '<span class="text-white/40">Loading file...</span>' : highlightBatch(src),
-          }}
-        />
-      </motion.div>
-    </motion.div>
+        {/* Both axes scroll, and the block is capped against the *real* visual
+            viewport so it can never outgrow a landscape phone. */}
+        <div className="min-h-0 flex-1 overflow-auto overscroll-contain">
+          <pre
+            className="p-4 sm:p-5 text-[12px] sm:text-[13px] font-mono leading-relaxed text-white/90 select-text"
+            dangerouslySetInnerHTML={{
+              __html: loading ? '<span class="text-white/40">Loading file...</span>' : highlightBatch(src),
+            }}
+          />
+        </div>
+      </ModalPanel>
+    </ModalBackdrop>
   )
 }
 
@@ -507,6 +482,35 @@ function AssetCard({ item, index, forceOpen }) {
   const [previewOpen, setPreviewOpen] = useState(false)
   const [copied, setCopied] = useState(false)
   const [cmdCopied, setCmdCopied] = useState(false)
+  const [latency, setLatency] = useState(null)
+
+  useEffect(() => {
+    const url = fileUrlOf(item)
+    if (!url) return undefined
+    let cancelled = false
+    const ctrl = new AbortController()
+    const timer = setTimeout(() => ctrl.abort(), 6000)
+    const start = performance.now()
+
+    const measure = () => {
+      if (!cancelled) setLatency(Math.max(1, Math.round(performance.now() - start)))
+    }
+
+    fetch(url, { method: 'HEAD', cache: 'no-store', signal: ctrl.signal })
+      .then(measure)
+      .catch(() =>
+        fetch(url, { method: 'GET', headers: { Range: 'bytes=0-0' }, cache: 'no-store', signal: ctrl.signal })
+          .then(measure)
+          .catch(() => {})
+      )
+      .finally(() => clearTimeout(timer))
+
+    return () => {
+      cancelled = true
+      ctrl.abort()
+      clearTimeout(timer)
+    }
+  }, [item])
 
   useEffect(() => {
     if (forceOpen) setGateOpen(true)
@@ -526,19 +530,33 @@ function AssetCard({ item, index, forceOpen }) {
       const content = url
         ? await (await fetch(url)).text()
         : placeholderScript(item)
-      await navigator.clipboard.writeText(content)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      const ok = await copyText(content)
+      if (ok) {
+        setCopied(true)
+        showToast('Script source copied to clipboard', { kind: 'copy', description: `${content.length} chars` })
+        setTimeout(() => setCopied(false), 2000)
+      } else {
+        setCopied(false)
+        showToast('Copy failed — long-press and copy manually.', { kind: 'error' })
+      }
     } catch {
       setCopied(false)
+      showToast('Could not read the script source.', { kind: 'error' })
     }
   }
 
   const copyCommand = async () => {
     try {
-      await navigator.clipboard.writeText(commandFor(item))
-      setCmdCopied(true)
-      setTimeout(() => setCmdCopied(false), 2000)
+      const command = commandFor(item)
+      const ok = await copyText(command)
+      if (ok) {
+        setCmdCopied(true)
+        showToast('PowerShell one-liner copied', { kind: 'copy', description: command })
+        setTimeout(() => setCmdCopied(false), 2000)
+      } else {
+        setCmdCopied(false)
+        showToast('Copy failed — long-press and copy manually.', { kind: 'error' })
+      }
     } catch {
       setCmdCopied(false)
     }
@@ -549,34 +567,35 @@ function AssetCard({ item, index, forceOpen }) {
       layout
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -6, borderColor: 'rgba(0,240,255,0.45)' }}
       whileTap={{ scale: 0.99 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.5, delay: index * 0.05 }}
       viewport={{ once: true, margin: '-50px' }}
-      className="group relative glass rounded-2xl p-6 hover:border-neon-cyan/40 hover:shadow-[0_0_40px_rgba(0,240,255,0.08)] transition-all duration-500"
+      className="group relative glass rounded-2xl p-4 sm:p-6 hover:border-neon-cyan/40 hover:shadow-[0_0_40px_rgba(0,240,255,0.08)] transition-colors duration-500"
     >
       <TiltCard className="flex flex-col h-full">
-        <div className="flex items-start justify-between mb-4">
-        <div className={`w-12 h-12 rounded-xl border ${color.border} ${color.bg} flex items-center justify-center relative overflow-hidden`}>
-          <CatIcon className={`w-6 h-6 ${color.text}`} />
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-neon-fuchsia blur-sm opacity-60" />
-        </div>
-        <div className="flex items-center gap-2">
-          {item.badge && (
-            <span className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold ${color.text} ${color.bg} border ${color.border}`}>
-              {item.badge}
+        {/* `flex-wrap` + `min-w-0`: a long badge next to the icon used to
+            widen the card past the viewport on narrow screens. */}
+        <div className="flex flex-wrap items-start justify-between gap-2 mb-4">
+          <div className={`w-12 h-12 shrink-0 rounded-xl border ${color.border} ${color.bg} flex items-center justify-center relative overflow-hidden`}>
+            <CatIcon className={`w-6 h-6 ${color.text}`} />
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-neon-fuchsia blur-sm opacity-60" />
+          </div>
+          <div className="flex flex-wrap items-center gap-2 min-w-0 justify-end">
+            {item.badge && (
+              <span className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold max-w-full break-anywhere ${color.text} ${color.bg} border ${color.border}`}>
+                {item.badge}
+              </span>
+            )}
+            <span className="px-2.5 py-1 rounded-full text-[10px] font-mono text-white/60 bg-white/[0.04] border border-white/10 shrink-0">
+              {typeOf(item)}
             </span>
-          )}
-          <span className="px-2.5 py-1 rounded-full text-[10px] font-mono text-white/60 bg-white/[0.04] border border-white/10">
-            {typeOf(item)}
-          </span>
+          </div>
         </div>
-      </div>
 
-      <h3 className="text-lg font-bold text-white mb-2 group-hover:text-neon-cyan transition-colors duration-300">
-        {nameOf(item)}
-      </h3>
+        <h3 className="text-lg font-bold text-white mb-2 group-hover:text-neon-cyan transition-colors duration-300 break-anywhere">
+          {nameOf(item)}
+        </h3>
       <p className="text-sm text-white/60 leading-relaxed mb-4">
         {item.description}
       </p>
@@ -596,8 +615,8 @@ function AssetCard({ item, index, forceOpen }) {
         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-400/10 text-emerald-400 border border-emerald-400/30">
           <Clock className="w-3 h-3" /> Updated
         </span>
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-neon-cyan/10 text-neon-cyan border border-neon-cyan/30">
-          <ShieldCheck className="w-3 h-3" /> Verified
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-neon-violet/10 text-neon-violet border border-neon-violet/30">
+          <ShieldCheck className="w-3 h-3" /> 100% Client-Side Verified
         </span>
         {item.funnelUrl && (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-neon-violet/10 text-neon-violet border border-neon-violet/30">
@@ -609,7 +628,10 @@ function AssetCard({ item, index, forceOpen }) {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
           </span>
-          {item.endpoint || 'Operational'}
+          {item.statusLabel || item.title}: {item.endpoint || 'Operational'}
+        </span>
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] text-white/60 border border-white/10">
+          <Zap className="w-3 h-3 text-neon-cyan" /> Latency: {latency ?? '—'}ms
         </span>
         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] text-white/60 border border-white/10">
           <HeartPulse className="w-3 h-3 text-emerald-400" /> Health: {item.health ?? 100}%
@@ -639,19 +661,17 @@ function AssetCard({ item, index, forceOpen }) {
 <div className="flex items-center justify-between flex-wrap gap-3 mt-auto">
         <div className="flex flex-col sm:flex-row gap-2.5">
           <motion.button
-            whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={() => setGateOpen(true)}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-12 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 border border-neon-cyan/40 hover:shadow-[0_0_25px_rgba(0,240,255,0.3)] hover:-translate-y-0.5 transition-all duration-300 group"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-12 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 border border-neon-cyan/40 hover:shadow-[0_0_25px_rgba(0,240,255,0.3)] active:scale-[0.98] transition-all duration-300 group"
           >
             <Lock className="w-4 h-4 text-neon-cyan group-hover:animate-pulse" />
             Unlock File
           </motion.button>
           <motion.button
-            whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={copyCommand}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-12 rounded-lg text-sm font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-400/30 hover:bg-emerald-500/20 hover:-translate-y-0.5 transition-all duration-300"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-12 rounded-lg text-sm font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-400/30 hover:bg-emerald-500/20 active:scale-[0.98] transition-all duration-300"
           >
             {cmdCopied ? (
               <><Check className="w-4 h-4" /> Command copied!</>
@@ -661,7 +681,6 @@ function AssetCard({ item, index, forceOpen }) {
           </motion.button>
           {SCRIPT_TYPES.includes(typeOf(item)) && (
             <motion.button
-              whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => setPreviewOpen(true)}
               className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-12 rounded-lg text-sm font-semibold text-white/80 bg-white/[0.04] border border-white/15 hover:border-neon-cyan/50 hover:text-white transition-all duration-300"
@@ -671,7 +690,6 @@ function AssetCard({ item, index, forceOpen }) {
           )}
           {SCRIPT_TYPES.includes(typeOf(item)) && isDirectFile(fileUrlOf(item), typeOf(item)) && (
             <motion.button
-              whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={copyScript}
               className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-12 rounded-lg text-xs font-semibold text-white/80 bg-white/[0.04] border border-white/15 hover:border-neon-violet/50 hover:text-white transition-all duration-300"
@@ -736,7 +754,7 @@ export default function DownloadHub({ pendingGate, onGateConsumed }) {
   }, [query, category])
 
   return (
-    <section id="software" className="relative pt-16 pb-20 overflow-hidden">
+    <section id="software" className="relative pt-20 sm:pt-24 pb-16 sm:pb-20 overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(168,85,247,0.06),transparent_55%)]" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
         <motion.div

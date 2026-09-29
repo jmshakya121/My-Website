@@ -22,6 +22,22 @@
   --surface-strong: rgba(255, 255, 255, 0.08);
   --border: rgba(255, 255, 255, 0.1);
   --border-strong: rgba(255, 255, 255, 0.16);
+
+  /* Safe-area insets (0 when the browser has no notch / home indicator) */
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+
+  /* Real viewport height that survives the mobile keyboard / collapsing
+     browser chrome. Falls back to 100vh where dvh is unsupported. */
+  --app-vh: 100vh;
+}
+
+@supports (height: 100dvh) {
+  :root {
+    --app-vh: 100dvh;
+  }
 }
 
 html.light {
@@ -45,48 +61,69 @@ html.light {
   --border-strong: rgba(15, 23, 42, 0.2);
 }
 
-/* Smooth theme switches */
-.themed,
-.themed body,
-.themed section,
-.themed header,
-.themed footer,
-.themed div,
-.themed a,
-.themed button,
-.themed input,
-.themed select,
-.themed textarea,
-.themed span,
-.themed p,
-.themed h1,
-.themed h2,
-.themed h3,
-.themed h4,
-.themed li,
-.themed pre,
-.themed code {
-  transition:
-    background-color 0.35s ease,
-    border-color 0.35s ease,
-    color 0.35s ease,
-    opacity 0.25s ease;
-}
-
 @layer base {
   html {
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* `clip` (not `hidden`) so `position: fixed` children keep working and
+       no horizontal scroll container is created. */
+    overflow-x: hidden;
+  }
+
+  @supports (overflow-x: clip) {
+    html {
+      overflow-x: clip;
+    }
   }
 
   section[id],
   div[id] {
-    scroll-margin-top: 92px;
+    scroll-margin-top: calc(var(--sat) + 5.5rem);
   }
 
   body {
     background-color: var(--c-body);
     color: rgb(var(--white-rgb));
     overflow-x: hidden;
+    min-height: var(--app-vh);
+    /* Stop iOS from re-flowing the whole page when a text field focuses. */
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Kill the grey flash iOS/Android paint on every tap. */
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  label,
+  [role='button'] {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Remove the 300ms tap delay without disabling pinch-zoom or scrolling. */
+  a,
+  button,
+  [role='button'],
+  summary,
+  label {
+    touch-action: manipulation;
+  }
+
+  /* Inputs at 16px+ stop iOS Safari from auto-zooming on focus. */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  @media (min-width: 640px) {
+    input,
+    select,
+    textarea {
+      font-size: inherit;
+    }
   }
 
   ::selection {
@@ -94,18 +131,71 @@ html.light {
     color: #ffffff;
   }
 
-  ::-webkit-scrollbar {
-    width: 10px;
+  ::-moz-selection {
+    background-color: rgba(0, 240, 255, 0.3);
+    color: #ffffff;
   }
-  ::-webkit-scrollbar-track {
-    background: var(--c-800);
+
+  /* Custom scrollbars are desktop-only. Styling `::-webkit-scrollbar` forces
+     Android Chrome to drop overlay scrollbars for a 10px layout-consuming
+     column, which steals width on every phone. */
+  @media (min-width: 1024px) {
+    html {
+      scrollbar-width: thin;
+      scrollbar-color: rgb(var(--neon-cyan-rgb)) var(--c-800);
+    }
+
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--c-800);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, rgb(var(--neon-cyan-rgb)), rgb(var(--neon-violet-rgb)));
+      border-radius: 5px;
+    }
   }
-  ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, rgb(var(--neon-cyan-rgb)), rgb(var(--neon-violet-rgb)));
-    border-radius: 5px;
+
+  @media (hover: hover) and (pointer: fine) {
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #38bdf8, #e879f9);
+    }
   }
-  ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #38bdf8, #e879f9);
+}
+
+/* Smooth theme switches.
+   MUST live in @layer base: Tailwind emits its `transition-*` utilities in
+   @layer utilities, which is later in the cascade, so `transition-all`,
+   `transition-colors` and `transition-transform` now correctly win instead
+   of being silently overwritten on every element. */
+@layer base {
+  .themed,
+  .themed body,
+  .themed section,
+  .themed header,
+  .themed footer,
+  .themed div,
+  .themed a,
+  .themed button,
+  .themed input,
+  .themed select,
+  .themed textarea,
+  .themed span,
+  .themed p,
+  .themed h1,
+  .themed h2,
+  .themed h3,
+  .themed h4,
+  .themed li,
+  .themed pre,
+  .themed code {
+    transition:
+      background-color 0.35s ease,
+      border-color 0.35s ease,
+      color 0.35s ease,
+      opacity 0.25s ease;
   }
 }
 
@@ -120,6 +210,24 @@ html.light {
     @apply backdrop-blur-2xl border;
     background-color: var(--surface-strong);
     border-color: var(--border-strong);
+  }
+
+  /* Backdrop blur is the single biggest GPU cost on mid-range phones.
+     Ten stacked layers at xl/2xl blur will drop frames and can OOM, so
+     phones get a much cheaper blur. */
+  @media (max-width: 767px), (hover: none) {
+    .glass {
+      backdrop-filter: blur(6px) saturate(130%);
+      -webkit-backdrop-filter: blur(6px) saturate(130%);
+    }
+    .glass-strong {
+      backdrop-filter: blur(10px) saturate(130%);
+      -webkit-backdrop-filter: blur(10px) saturate(130%);
+    }
+    .chip {
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
   }
 
   .neon-text {
@@ -157,28 +265,39 @@ html.light {
   }
 
   .btn-primary {
-    @apply relative inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-base transition-all duration-300;
+    @apply relative inline-flex items-center justify-center gap-2 px-6 py-3 sm:px-7 sm:py-3.5 rounded-xl font-semibold text-base transition-all duration-300;
     background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(168, 85, 247, 0.15));
     border: 1px solid rgba(0, 240, 255, 0.4);
     color: rgb(var(--white-rgb));
     box-shadow: 0 0 20px rgba(0, 240, 255, 0.15), inset 0 0 20px rgba(0, 240, 255, 0.05);
   }
-  .btn-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 0 40px rgba(0, 240, 255, 0.3), inset 0 0 30px rgba(0, 240, 255, 0.1);
-    border-color: rgba(168, 85, 247, 0.6);
+  /* Guarded so the lift never latches after a tap on touch devices. */
+  @media (hover: hover) and (pointer: fine) {
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 40px rgba(0, 240, 255, 0.3), inset 0 0 30px rgba(0, 240, 255, 0.1);
+      border-color: rgba(168, 85, 247, 0.6);
+    }
+  }
+  .btn-primary:active {
+    transform: translateY(-1px) scale(0.985);
   }
 
   .btn-secondary {
-    @apply relative inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-base transition-all duration-300 backdrop-blur-xl;
+    @apply relative inline-flex items-center justify-center gap-2 px-6 py-3 sm:px-7 sm:py-3.5 rounded-xl font-semibold text-base transition-all duration-300;
     background: var(--surface);
     border: 1px solid rgba(168, 85, 247, 0.4);
     color: rgb(var(--white-rgb));
   }
-  .btn-secondary:hover {
-    transform: translateY(-3px);
-    border-color: rgb(var(--neon-cyan-rgb));
-    box-shadow: 0 0 30px rgba(168, 85, 247, 0.25);
+  @media (hover: hover) and (pointer: fine) {
+    .btn-secondary:hover {
+      transform: translateY(-3px);
+      border-color: rgb(var(--neon-cyan-rgb));
+      box-shadow: 0 0 30px rgba(168, 85, 247, 0.25);
+    }
+  }
+  .btn-secondary:active {
+    transform: translateY(-1px) scale(0.985);
   }
 
   .section-title-line {
@@ -194,7 +313,43 @@ html.light {
 
   .tilt-card {
     transform-style: preserve-3d;
-    will-change: transform;
+  }
+
+  /* Decorative 3D lift is only meaningful with a real pointer. */
+  @media (hover: none), (pointer: coarse) {
+    .tilt-card,
+    .preserve-3d,
+    .perspective {
+      transform-style: flat;
+    }
+    .tilt-card [style*='translateZ'] {
+      transform: none !important;
+    }
+  }
+}
+
+@layer utilities {
+  /* Bottom inset that clears the iOS home indicator. */
+  .pb-safe {
+    padding-bottom: var(--sab);
+  }
+  .pt-safe {
+    padding-top: var(--sat);
+  }
+  .bottom-safe {
+    bottom: calc(var(--sab) + 1rem);
+  }
+  .h-app {
+    height: var(--app-vh);
+  }
+  .max-h-app {
+    max-height: var(--app-vh);
+  }
+  /* Long unbroken strings (emails, URLs, file names) must never widen the
+     layout on a 320px phone. */
+  .break-anywhere {
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 }
 
@@ -226,4 +381,38 @@ html.light {
     linear-gradient(90deg, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
   background-size: 50px 50px;
   animation: gridMove 4s linear infinite;
+  will-change: background-position;
+}
+
+/* iOS momentum scrolling inside scrollable panels. */
+.overscroll-contain {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Respect the OS "reduce motion" setting. Several decorative animations run
+   forever (float, glow-pulse, marquee, ping, grid-animated) and are a real
+   accessibility problem for motion-sensitive users. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  .neon-text,
+  .grid-animated {
+    animation: none !important;
+  }
+
+  .grid-animated {
+    will-change: auto;
+  }
 }

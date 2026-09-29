@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Search, LayoutDashboard, Download, Rss, FolderKanban, Send,
-  Sun, Command, CornerDownLeft, Package,
+  Search, LayoutDashboard, Download, Wrench, Rss, FolderKanban, Send,
+  Sun, Command, CornerDownLeft, Package, X,
 } from 'lucide-react'
 import { SOFTWARE_ITEMS } from '../data/profile'
+import useScrollLock from '../hooks/useScrollLock'
 
 const NAV_ITEMS = [
   { type: 'nav', key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { type: 'nav', key: 'software', label: 'Software Utilities', icon: Download },
+  { type: 'nav', key: 'utilities', label: 'Web Utilities', icon: Wrench },
   { type: 'nav', key: 'projects', label: 'Projects', icon: FolderKanban },
   { type: 'nav', key: 'connect', label: 'Connect', icon: Rss },
   { type: 'nav', key: 'contact', label: 'Contact', icon: Send },
@@ -55,6 +57,8 @@ export default function CommandPalette() {
     )
   }, [items, query])
 
+  useScrollLock(open)
+
   useEffect(() => {
     const onKey = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
@@ -74,13 +78,11 @@ export default function CommandPalette() {
   }, [open])
 
   useEffect(() => {
-    document.body.style.overflow = open ? 'hidden' : ''
-    if (open) {
-      setQuery('')
-      setActive(0)
-      const t = setTimeout(() => inputRef.current?.focus(), 60)
-      return () => clearTimeout(t)
-    }
+    setQuery('')
+    setActive(0)
+    if (!open) return undefined
+    const t = setTimeout(() => inputRef.current?.focus(), 60)
+    return () => clearTimeout(t)
   }, [open])
 
   useEffect(() => {
@@ -123,17 +125,23 @@ export default function CommandPalette() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={() => setOpen(false)}
-          className="fixed inset-0 z-[110] flex items-start justify-center px-4 pt-[15vh] bg-black/70 backdrop-blur-md"
+          /* `dvh` rather than `vh`: classic vh does not shrink when the mobile
+             keyboard opens, so the panel was pushed off screen. Centred with
+             flex + max-height instead of a 15vh offset. */
+          className="fixed inset-0 z-[110] flex items-start sm:items-center justify-center px-3 sm:px-4 pt-[calc(var(--sat)+0.75rem)] sm:pt-[10vh] pb-[calc(var(--sab)+0.75rem)] bg-black/70 backdrop-blur-md"
         >
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Command palette"
             initial={{ opacity: 0, y: -18, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -18, scale: 0.96 }}
             transition={{ type: 'spring', stiffness: 320, damping: 28 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-xl rounded-2xl overflow-hidden glass-strong border border-white/15 shadow-2xl"
+            className="relative w-full max-w-xl rounded-2xl overflow-hidden glass-strong border border-white/15 shadow-2xl flex flex-col min-h-0 max-h-[calc(var(--app-vh)-1.5rem)]"
           >
-            <div className="flex items-center gap-3 px-5 py-4 border-b border-white/10 bg-white/[0.04]">
+            <div className="flex shrink-0 items-center gap-3 px-4 sm:px-5 py-3.5 sm:py-4 border-b border-white/10 bg-white/[0.04]">
               <Search className="w-5 h-5 text-neon-cyan shrink-0" />
               <input
                 ref={inputRef}
@@ -141,14 +149,23 @@ export default function CommandPalette() {
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={onKeyDown}
                 placeholder="Search pages, scripts, actions…"
-                className="flex-1 bg-transparent text-white placeholder:text-white/30 focus:outline-none text-base"
+                enterKeyHint="search"
+                className="flex-1 min-w-0 bg-transparent text-base text-white placeholder:text-white/30 focus:outline-none"
               />
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="sm:hidden p-1.5 -mr-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors shrink-0"
+                aria-label="Close search"
+              >
+                <X className="w-4 h-4" />
+              </button>
               <div className="hidden sm:flex items-center gap-1 text-[10px] font-mono text-white/40">
                 <span className="px-1.5 py-0.5 rounded border border-white/20">ESC</span>
               </div>
             </div>
 
-            <div className="max-h-[46vh] overflow-y-auto p-2">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-2">
               {filtered.length === 0 && (
                 <p className="px-4 py-10 text-center text-sm text-white/40">
                   No results for "{query}"
@@ -203,12 +220,12 @@ export default function CommandPalette() {
               })}
             </div>
 
-            <div className="flex items-center justify-between px-5 py-3 border-t border-white/10 bg-white/[0.03] text-[10px] font-mono text-white/40">
+            <div className="hidden sm:flex shrink-0 items-center justify-between px-5 py-3 border-t border-white/10 bg-white/[0.03] text-[10px] font-mono text-white/40">
               <span className="flex items-center gap-1.5">
                 <Command className="w-3.5 h-3.5" /> K to open anytime
               </span>
               <span className="flex items-center gap-3">
-                <span className="flex items-center gap-1"><Sun className="w-3 h-3" /> ↑↓</span>
+                <span className="flex items-center gap-1"><Sun className="w-3 h-3" /> ↑↓ navigate</span>
                 <span className="flex items-center gap-1"><CornerDownLeft className="w-3 h-3" /> select</span>
                 <span className="px-1.5 py-0.5 rounded border border-white/20">esc</span>
               </span>
