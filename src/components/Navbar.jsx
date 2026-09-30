@@ -91,15 +91,16 @@ export default function Navbar({ view = 'dashboard', onNavigate, theme = 'dark',
   }
 
   return (
-    <header
-      ref={headerRef}
-      className={`fixed top-0 inset-x-0 z-50 transition-[background-color,border-color,box-shadow,backdrop-filter] duration-500 ${
-        scrolled || open
-          ? 'bg-body/80 backdrop-blur-2xl border-b border-white/10 py-2.5'
-          : 'bg-transparent py-3'
-      }`}
-      style={{ paddingTop: 'calc(var(--sat) + 0.75rem)' }}
-    >
+    <>
+      <header
+        ref={headerRef}
+        className={`fixed top-0 inset-x-0 z-50 transition-[background-color,border-color,box-shadow,backdrop-filter] duration-500 ${
+          scrolled || open
+            ? 'bg-body/80 backdrop-blur-2xl border-b border-white/10 py-2.5'
+            : 'bg-transparent py-3'
+        }`}
+        style={{ paddingTop: 'calc(var(--sat) + 0.75rem)' }}
+      >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 sm:gap-4">
         {/* Brand */}
         <button
@@ -186,12 +187,18 @@ export default function Navbar({ view = 'dashboard', onNavigate, theme = 'dark',
           </button>
         </div>
       </div>
+      </header>
 
-      {/* Mobile menu — top tracks the measured header height so there is never
-          a gap between the two, whatever the safe-area inset works out to. */}
+      {/* Mobile menu.
+          This must be a SIBLING of <header>, not a child. The header carries
+          `backdrop-blur-2xl` when the menu opens, and a backdrop-filter turns
+          the element into the containing block for fixed-position descendants.
+          Nested inside, `top`/`bottom` resolved against the 68px header rather
+          than the viewport, collapsing the panel to zero height — the button
+          toggled state but nothing appeared to happen. */}
       <div
         id="mobile-nav"
-        className={`lg:hidden fixed inset-x-0 bottom-0 bg-body/95 backdrop-blur-2xl transition-opacity duration-300 ${
+        className={`lg:hidden fixed inset-x-0 bottom-0 z-40 bg-body/95 backdrop-blur-2xl transition-opacity duration-300 ${
           open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         style={{ top: `${headerHeight}px`, paddingBottom: 'var(--sab)' }}
@@ -223,6 +230,6 @@ export default function Navbar({ view = 'dashboard', onNavigate, theme = 'dark',
           </p>
         </nav>
       </div>
-    </header>
+    </>
   )
 }
