@@ -21,6 +21,10 @@ import useMediaQuery, { useReducedMotion } from './hooks/useMediaQuery'
    chunk that only desktop, non-reduced-motion clients ever request. */
 const DynamicBackground = lazy(() => import('./components/three/DynamicBackground.jsx'))
 
+/* Small and dependency-free, so it can be imported eagerly and used as the
+   Suspense fallback without pulling in three.js. */
+import CssStarfield from './components/three/CssStarfield.jsx'
+
 /* Decided *before* first paint so the `lazy()` above is never triggered on a
    phone — a Suspense-mounted-but-empty child still fetches its chunk. */
 const DESKTOP_3D_QUERY =
@@ -31,10 +35,15 @@ function BackgroundFX({ theme }) {
 
   return (
     <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-      {canRender3D && (
-        <Suspense fallback={null}>
+      {canRender3D ? (
+        <Suspense fallback={<CssStarfield theme={theme} />}>
           <DynamicBackground theme={theme} />
         </Suspense>
+      ) : (
+        /* No WebGL on this device (phone, reduced-motion, or no hover) — show the
+           CSS starfield rather than a bare gradient. It is transform-only, so it
+           costs no GPU memory and cannot lose a context. */
+        <CssStarfield theme={theme} />
       )}
       <div className="absolute inset-0 bg-grid-pattern opacity-25" />
       <div className="absolute top-0 -left-40 w-[500px] h-[500px] bg-neon-cyan/5 rounded-full blur-[120px]" />

@@ -390,6 +390,48 @@ html.light {
   overscroll-behavior: contain;
 }
 
+/* ---- CSS starfield fallback (see components/three/CssStarfield.jsx) ----
+   Shown instead of the WebGL scene when it is disabled, unavailable, or has
+   lost its context. Deliberately transform/opacity-only so the animation stays
+   on the compositor and cannot itself exhaust GPU memory. */
+.css-star {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform, opacity;
+  animation-name: cssTwinkle;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+@keyframes cssTwinkle {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.25;
+  }
+  50% {
+    transform: translate3d(0, -6px, 0) scale(1.35);
+    opacity: 0.95;
+  }
+}
+
+.css-drift {
+  will-change: transform;
+  animation-name: cssDrift;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+@keyframes cssDrift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(4%, 3%, 0) scale(1.12);
+  }
+}
+
 /* Respect the OS "reduce motion" setting. Several decorative animations run
    forever (float, glow-pulse, marquee, ping, grid-animated) and are a real
    accessibility problem for motion-sensitive users. */
@@ -408,11 +450,15 @@ html.light {
   }
 
   .neon-text,
-  .grid-animated {
+  .grid-animated,
+  .css-star,
+  .css-drift {
     animation: none !important;
   }
 
-  .grid-animated {
+  .grid-animated,
+  .css-star,
+  .css-drift {
     will-change: auto;
   }
 }

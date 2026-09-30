@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Sparkles, Float, AdaptiveDpr } from '@react-three/drei'
 import * as THREE from 'three'
+import CssStarfield from './CssStarfield.jsx'
 
 const PALETTES = {
   dark: { cyan: '#00f0ff', violet: '#a855f7', fuchsia: '#e879f9' },
@@ -56,6 +57,28 @@ function detectMode() {
   const memory = navigator.deviceMemory || 8
   if (cores <= 4 || memory <= 4) return 'lite'
   return 'full'
+}
+
+/* Can we actually get a WebGL context? A driver that refuses (old iOS, blocklisted
+   GPU) would otherwise throw inside the Canvas constructor and take the whole
+   React tree down with it. Probed ONCE and memoised — each probe burns a real
+   GPU context, and browsers cap concurrent contexts at around 16, so probing on
+   every render would itself exhaust the limit. */
+let webglSupport = null
+function webglAvailable() {
+  if (webglSupport !== null) return webglSupport
+  if (typeof document === 'undefined') return false
+  try {
+    const c = document.createElement('canvas')
+    const gl = c.getContext('webgl2') || c.getContext('webgl') || c.getContext('experimental-webgl')
+    webglSupport = !!gl
+    // Free the probe context immediately.
+    const lose = gl && gl.getExtension('WEBGL_lose_context')
+    if (lose) lose.loseContext()
+  } catch {
+    webglSupport = false
+  }
+  return webglSupport
 }
 
 function useThemeColorRefs(palette) {
@@ -449,6 +472,8 @@ function BgScene({ palette, pointer, mode, darkMode, starCount, clusterCount }) 
 
 export default function DynamicBackground({ theme = 'dark' }) {
   const mode = useMemo(detectMode, [])
+  // Probed once, and only when the scene is actually going to be used.
+  const hasWebGL = useMemo(() => (mode === 'off' ? false : webglAvailable()), [mode])
   const palette = PALETTES[theme] || PALETTES.dark
   const pointer = usePointer()
   const darkMode = theme === 'dark'
@@ -462,17 +487,84 @@ export default function DynamicBackground({ theme = 'dark' }) {
     return () => document.removeEventListener('visibilitychange', onVisibility)
   }, [])
 
+  /* WebGL context loss / recovery.
+     iOS Safari reclaims GPU contexts aggressively — most often when returning
+     from an external ad tab. The canvas then renders nothing and the page reads
+     as a solid black screen, even though the DOM is intact. Handling the events
+     directly is the only reliable fix:
+       - on `lost`, preventDefault() (this is what marks the event as handled and
+         is REQUIRED for `restored` to ever fire) and freeze the render loop;
+       - on `restored`, let three.js rebuild its resources and resume.
+     If the context cannot be recovered, fall back to the CSS starfield so the
+     page is never left black. */
+  const [contextLost, setContextLost] = useState(false)
+  const [glFailed, setGlFailed] = useState(false)
+  const [generation, setGeneration] = useState(0)
+  // Detach function for the currently bound canvas. Held in a ref because
+  // `onCreated` fires when the Canvas mounts, which is NOT a point at which an
+  // effect can observe it — a `useEffect` reading a canvas ref runs first and
+  // sees null, so the listeners would never attach.
+  const detachRef = useRef(null)
+
+  const onCreated = useCallback((state) => {
+    const canvas = state.gl.domElement
+    if (!canvas) return
+
+    // Drop any previous binding (generation bump creates a new canvas).
+    if (detachRef.current) detachRef.current()
+
+    const onLost = (event) => {
+      // Without preventDefault the browser will not attempt restoration.
+      event.preventDefault()
+      setContextLost(true)
+    }
+    const onRestored = () => {
+      setContextLost(false)
+      // Bumping the key forces a clean remount of the whole scene, so stale
+      // GPU resources from the lost context are not reused.
+      setGeneration((g) => g + 1)
+    }
+
+    canvas.addEventListener('webglcontextlost', onLost, false)
+    canvas.addEventListener('webglcontextrestored', onRestored, false)
+    detachRef.current = () => {
+      canvas.removeEventListener('webglcontextlost', onLost)
+      canvas.removeEventListener('webglcontextrestored', onRestored)
+      detachRef.current = null
+    }
+  }, [])
+
+  useEffect(() => () => {
+    if (detachRef.current) detachRef.current()
+  }, [])
+
   if (mode === 'off') return null
+
+  // No WebGL at all: CSS-only sky, and no canvas is ever created.
+  if (glFailed || !hasWebGL) {
+    return <CssStarfield theme={theme} />
+  }
 
   const starCount = mode === 'lite' ? 650 : 1400
   const clusterCount = mode === 'lite' ? 4 : 10
 
   return (
     <div className="pointer-events-none fixed inset-0 z-0" aria-hidden="true">
+      {/* Rendered BEHIND the canvas at all times, and the canvas is transparent
+          (`alpha: true`). When the GPU context dies mid-frame the canvas stops
+          painting and this shows through — which is what turns a black screen
+          into a starfield. The canvas is deliberately NOT unmounted on loss:
+          `webglcontextrestored` only ever fires on a live canvas element, so
+          removing it would make recovery impossible by construction. */}
+      <CssStarfield theme={theme} />
       <Canvas
+        key={generation}
         dpr={mode === 'lite' ? [1, 1.25] : [1, 1.5]}
-        frameloop={pageVisible ? 'always' : 'never'}
+        frameloop={contextLost || !pageVisible ? 'never' : 'always'}
         camera={{ position: [0, 0, 5.4], fov: 60 }}
+        onCreated={onCreated}
+        fallback={null}
+        onError={() => setGlFailed(true)}
         gl={{
           antialias: mode !== 'lite',
           alpha: true,
