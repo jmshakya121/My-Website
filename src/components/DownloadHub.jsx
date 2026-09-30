@@ -2,8 +2,8 @@ import { useMemo, useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search, Download, Copy, Check, ShieldAlert, FileCode2,
-  AlertTriangle, Package, HardDrive, X, Lock,
-  Rocket, ExternalLink, KeyRound, UserCheck, Unlock, ShieldCheck, Eye,
+  AlertTriangle, Package, HardDrive,
+  Rocket, ExternalLink, KeyRound, ShieldCheck, Eye,
   Clock, Shield, Wrench, Database, Wifi, Zap,
   HeartPulse, Terminal,
 } from 'lucide-react'
@@ -91,6 +91,22 @@ function directDownload(item) {
   a.remove()
 }
 
+/* Single entry point for "get me this file". Prefers the real asset in
+   /public/scripts and only falls back to the generated placeholder when the
+   item has no local file. Never opens a new tab. */
+function downloadAsset(item) {
+  if (isDirectFile(fileUrlOf(item), typeOf(item))) {
+    directDownload(item)
+    showToast('Download started', {
+      kind: 'download',
+      description: item.downloadName || fileUrlOf(item),
+    })
+    return
+  }
+  triggerDownload(item)
+  showToast('Download started', { kind: 'download', description: `${nameOf(item)}${typeOf(item)}` })
+}
+
 /* One-liner for power users to run the asset in PowerShell/CMD */
 function commandFor(item) {
   const url = `${window.location.origin}${fileUrlOf(item)}`
@@ -99,230 +115,6 @@ function commandFor(item) {
     return `irm ${url} | iex`
   }
   return `iwr ${url} -OutFile "$env:USERPROFILE\\Downloads\\${file}"; explorer "$env:USERPROFILE\\Downloads\\${file}"`
-}
-
-/* ---------------- 2-STEP GATE MODAL ---------------- */
-
-function GateModal({ item, onClose }) {
-  const [unlocked, setUnlocked] = useState(false)
-  const [bot, setBot] = useState(false)
-  const [count, setCount] = useState(10)
-  const [copiedPw, setCopiedPw] = useState(false)
-
-  const hasFunnel = Boolean(item.funnelUrl)
-  const hasRelease = Boolean(item.releaseUrl)
-  const hasDirect = Boolean(fileUrlOf(item) && isDirectFile(fileUrlOf(item), typeOf(item)))
-
-  const primaryUrl = item.funnelUrl || item.releaseUrl || releaseUrlOf(item)
-
-  useEffect(() => {
-    const iv = setInterval(() => {
-      setCount((c) => (c > 0 ? c - 1 : 0))
-    }, 1000)
-    return () => clearInterval(iv)
-  }, [])
-
-  const ready = count === 0 && bot
-
-  const copyPassword = async () => {
-    try {
-      await navigator.clipboard.writeText(item.password)
-      setCopiedPw(true)
-      setTimeout(() => setCopiedPw(false), 2000)
-    } catch {
-      setCopiedPw(false)
-    }
-  }
-
-  const handleUnlock = () => {
-    if (item.funnelUrl && item.funnelUrl.startsWith('http')) {
-      window.open(item.funnelUrl, '_blank', 'noopener,noreferrer')
-    } else if (item.releaseUrl || GITHUB_RELEASES) {
-      window.open(releaseUrlOf(item), '_blank', 'noopener,noreferrer')
-    }
-    const url = fileUrlOf(item)
-    if (isDirectFile(url, typeOf(item))) {
-      setTimeout(() => directDownload(item), 500)
-    }
-    setUnlocked(true)
-  }
-
-  const handleSecureDownload = () => {
-    if (item.funnelUrl) {
-      window.open(item.funnelUrl, '_blank', 'noopener,noreferrer')
-    }
-    const fileUrl = fileUrlOf(item)
-    if (fileUrl) {
-      const link = document.createElement('a')
-      link.href = fileUrl
-      link.setAttribute('download', item.downloadName || '')
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-    }
-  }
-
-  return (
-    <ModalBackdrop onClose={onClose} z={100} align="center">
-      <ModalPanel
-        onClick={(e) => e.stopPropagation()}
-        maxWidth="max-w-md"
-        className="!bg-transparent !border-transparent !backdrop-blur-none !shadow-none"
-      >
-        <div className="relative glass-strong border border-white/10 rounded-t-3xl sm:rounded-3xl p-5 sm:p-8 text-center overflow-hidden">
-          <div className="absolute -top-24 -right-24 w-56 h-56 rounded-full bg-neon-violet/20 blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -left-24 w-56 h-56 rounded-full bg-neon-cyan/20 blur-3xl pointer-events-none" />
-
-          <button
-            type="button"
-            onClick={onClose}
-            className="absolute top-3 right-3 p-2 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-white/60 hover:text-white active:bg-white/[0.16] transition-colors z-10"
-            aria-label="Close"
-          >
-            <X className="w-4 h-4" />
-          </button>
-
-          <div className="relative z-10">
-            <div className="mx-auto mb-5 h-14 w-14 rounded-2xl bg-white/[0.05] border border-white/15 flex items-center justify-center">
-              <FileCode2 className="w-7 h-7 text-neon-cyan" />
-            </div>
-            <h3 className="text-xl font-bold text-white mb-1 break-anywhere">{nameOf(item)}</h3>
-            <p className="text-xs text-white/50 mb-6 font-mono break-anywhere">
-              {typeOf(item)} · {item.size || '—'} · Secure unlock
-            </p>
-
-          {/* STEP 1: countdown + bot check */}
-          {!unlocked ? (
-            <div className="space-y-5">
-              <div className="relative mx-auto w-24 h-24 flex items-center justify-center">
-                <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="6" />
-                  <circle
-                    cx="50" cy="50" r="42" fill="none"
-                    stroke="url(#gateGrad)"
-                    strokeWidth="6" strokeLinecap="round"
-                    strokeDasharray={2 * Math.PI * 42}
-                    strokeDashoffset={2 * Math.PI * 42 * (1 - count / 10)}
-                  />
-                  <defs>
-                    <linearGradient id="gateGrad" x1="0" y1="0" x2="1" y2="1">
-                      <stop offset="0%" stopColor="#00f0ff" />
-                      <stop offset="100%" stopColor="#a855f7" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-                <span className="absolute text-2xl font-bold font-mono text-white">{count}</span>
-              </div>
-
-              <motion.button
-                type="button"
-                whileTap={{ scale: 0.97 }}
-                onClick={() => setBot((b) => !b)}
-                className={`w-full flex items-center justify-center gap-3 px-5 py-3.5 rounded-xl border text-sm font-medium transition-all duration-300 ${
-                  bot
-                    ? 'bg-neon-cyan/15 border-neon-cyan/60 text-white shadow-[0_0_20px_rgba(0,240,255,0.2)]'
-                    : 'bg-white/[0.04] border-white/15 text-white/60 hover:border-white/35'
-                }`}
-              >
-                <span
-                  className={`flex h-5 w-5 items-center justify-center rounded border transition-all duration-300 ${
-                    bot ? 'bg-neon-cyan border-neon-cyan' : 'border-white/40'
-                  }`}
-                >
-                  {bot && <Check className="w-3.5 h-3.5 text-[#05050a]" />}
-                </span>
-                I'm not a bot
-                <UserCheck className="w-4 h-4 ml-1 text-neon-violet" />
-              </motion.button>
-
-              <motion.button
-                type="button"
-                whileTap={{ scale: 0.97 }}
-                onClick={handleUnlock}
-                disabled={!ready}
-                className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-neon-cyan/25 to-neon-violet/25 border border-neon-cyan/50 transition-all duration-300 disabled:opacity-35 disabled:cursor-not-allowed enabled:hover:shadow-[0_0_30px_rgba(0,240,255,0.35)] enabled:active:scale-[0.98]"
-              >
-                {primaryUrl ? <Rocket className="w-4 h-4 text-neon-cyan" /> : <Unlock className="w-4 h-4 text-neon-cyan" />}
-                {count > 0 ? `Unlocks in ${count}s` : bot ? 'Unlock Download' : 'Verify below to unlock'}
-              </motion.button>
-            </div>
-          ) : (
-            /* STEP 2: download reveal */
-            <div className="space-y-4">
-              {hasFunnel && (
-                <button
-                  type="button"
-                  onClick={handleSecureDownload}
-                  className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500/20 to-neon-violet/20 border border-emerald-400/40 hover:shadow-[0_0_25px_rgba(52,211,153,0.3)] active:scale-[0.98] transition-all duration-300"
-                >
-                  <Rocket className="w-4 h-4 text-emerald-400" />
-                  Open Secure Download Link
-                  <ExternalLink className="w-4 h-4 text-white/60" />
-                </button>
-              )}
-              {!hasFunnel && hasRelease && (
-                <a
-                  href={releaseUrlOf(item)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500/20 to-neon-violet/20 border border-emerald-400/40 hover:shadow-[0_0_25px_rgba(52,211,153,0.3)] active:scale-[0.98] transition-all duration-300"
-                >
-                  <Rocket className="w-4 h-4 text-emerald-400" />
-                  Download via GitHub Releases
-                  <ExternalLink className="w-4 h-4 text-white/60" />
-                </a>
-              )}
-
-              {hasDirect && (
-                <a
-                  href={fileUrlOf(item)}
-                  download={item.downloadName}
-                  className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold text-white bg-white/[0.05] border border-white/15 hover:border-neon-cyan/50 transition-all duration-300"
-                >
-                  <Download className="w-4 h-4 text-neon-cyan" />
-                  Direct download {item.downloadName ? `(${item.downloadName})` : typeOf(item)}
-                </a>
-              )}
-
-              {!hasFunnel && !hasRelease && !hasDirect && (
-                <button
-                  onClick={() => triggerDownload(item)}
-                  className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold text-white bg-white/[0.05] border border-white/15 hover:border-neon-cyan/50 transition-all duration-300"
-                >
-                  <Download className="w-4 h-4 text-neon-cyan" /> Download {typeOf(item)}
-                </button>
-              )}
-
-              {item.password && (
-                <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-white/[0.04] border border-amber-400/30">
-                  <div className="flex items-center gap-2 text-left">
-                    <KeyRound className="w-4 h-4 text-amber-300" />
-                    <div className="leading-tight">
-                      <p className="text-[10px] text-white/40 uppercase tracking-wide">Archive password</p>
-                      <p className="text-sm font-mono font-bold text-amber-300">{item.password}</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={copyPassword}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-white/80 bg-white/[0.06] border border-white/15 hover:border-amber-400/50 transition-colors"
-                  >
-                    {copiedPw ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                    {copiedPw ? 'Copied' : 'Copy'}
-                  </button>
-                </div>
-              )}
-
-              <p className="flex items-center justify-center gap-1.5 text-[11px] text-white/40">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span className="break-anywhere text-center">Unlocked · {item.size || '—'} · power-user script</span>
-              </p>
-            </div>
-          )}
-          </div>
-        </div>
-      </ModalPanel>
-    </ModalBackdrop>
-  )
 }
 
 /* ---------------- CODE PREVIEW MODAL ---------------- */
@@ -393,14 +185,15 @@ function CodePreviewModal({ item, onClose }) {
     }
   }
 
+  /* Direct, same-tab download of the local asset. This used to open a
+     third-party monetised link in a new tab and then fire a second download
+     600ms later, so one click produced a pop-under and two file requests. */
   const secureDownload = () => {
-    if (item.funnelUrl && item.funnelUrl.startsWith('http')) {
-      window.open(item.funnelUrl, '_blank', 'noopener,noreferrer')
-    } else {
-      window.open(releaseUrlOf(item), '_blank', 'noopener,noreferrer')
-    }
     if (isDirectFile(fileUrlOf(item), typeOf(item))) {
-      setTimeout(() => directDownload(item), 600)
+      directDownload(item)
+      showToast('Download started', { kind: 'download', description: item.downloadName || fileUrlOf(item) })
+    } else {
+      triggerDownload(item)
     }
   }
 
@@ -424,7 +217,7 @@ function CodePreviewModal({ item, onClose }) {
             onClick={secureDownload}
             className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-12 rounded-lg text-sm font-bold text-white bg-gradient-to-r from-neon-cyan/25 to-neon-violet/25 border border-neon-cyan/50 shadow-[0_0_25px_rgba(0,240,255,0.15)] hover:shadow-[0_0_35px_rgba(0,240,255,0.3)] active:scale-[0.98] transition-all duration-300"
           >
-            <Rocket className="w-4 h-4 text-neon-cyan shrink-0" /> Download Script
+            <Download className="w-4 h-4 text-neon-cyan shrink-0" /> Download Script
           </motion.button>
           <motion.button
             whileTap={{ scale: 0.97 }}
@@ -474,11 +267,10 @@ function CodePreviewModal({ item, onClose }) {
 
 /* ---------------- CARD ---------------- */
 
-function AssetCard({ item, index, forceOpen }) {
+function AssetCard({ item, index, forceDownload }) {
   const color = categoryColors[item.category] || categoryColors.Utilities
   const CatIcon = categoryIcons[item.category] || FileCode2
   const [expanded, setExpanded] = useState(false)
-  const [gateOpen, setGateOpen] = useState(false)
   const [previewOpen, setPreviewOpen] = useState(false)
   const [copied, setCopied] = useState(false)
   const [cmdCopied, setCmdCopied] = useState(false)
@@ -512,17 +304,20 @@ function AssetCard({ item, index, forceOpen }) {
     }
   }, [item])
 
+  /* Both of these used to open a modal that then redirected to a monetised
+     link. They now perform the download directly, so triggering a download
+     from the command palette / terminal can't spawn a pop-under. */
   useEffect(() => {
-    if (forceOpen) setGateOpen(true)
-  }, [forceOpen])
+    if (forceDownload) downloadAsset(item)
+  }, [forceDownload, item])
 
   useEffect(() => {
     const handler = (e) => {
-      if (e.detail && e.detail.id === item.id) setGateOpen(true)
+      if (e.detail && e.detail.id === item.id) downloadAsset(item)
     }
-    window.addEventListener('open-download-gate', handler)
-    return () => window.removeEventListener('open-download-gate', handler)
-  }, [item.id])
+    window.addEventListener('open-software-download', handler)
+    return () => window.removeEventListener('open-software-download', handler)
+  }, [item])
 
   const copyScript = async () => {
     try {
@@ -618,11 +413,9 @@ function AssetCard({ item, index, forceOpen }) {
         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-neon-violet/10 text-neon-violet border border-neon-violet/30">
           <ShieldCheck className="w-3 h-3" /> 100% Client-Side Verified
         </span>
-        {item.funnelUrl && (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-neon-violet/10 text-neon-violet border border-neon-violet/30">
-            <Rocket className="w-3 h-3" /> Monetized
-          </span>
-        )}
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] text-white/60 border border-white/10">
+          <Download className="w-3 h-3 text-neon-cyan" /> Direct Download
+        </span>
         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-400/10 text-emerald-400 border border-emerald-400/30">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -662,11 +455,11 @@ function AssetCard({ item, index, forceOpen }) {
         <div className="flex flex-col sm:flex-row gap-2.5">
           <motion.button
             whileTap={{ scale: 0.97 }}
-            onClick={() => setGateOpen(true)}
+            onClick={() => downloadAsset(item)}
             className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-12 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 border border-neon-cyan/40 hover:shadow-[0_0_25px_rgba(0,240,255,0.3)] active:scale-[0.98] transition-all duration-300 group"
           >
-            <Lock className="w-4 h-4 text-neon-cyan group-hover:animate-pulse" />
-            Unlock File
+            <Download className="w-4 h-4 text-neon-cyan" />
+            Download Script
           </motion.button>
           <motion.button
             whileTap={{ scale: 0.97 }}
@@ -674,9 +467,9 @@ function AssetCard({ item, index, forceOpen }) {
             className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-12 rounded-lg text-sm font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-400/30 hover:bg-emerald-500/20 active:scale-[0.98] transition-all duration-300"
           >
             {cmdCopied ? (
-              <><Check className="w-4 h-4" /> Command copied!</>
+              <><Check className="w-4 h-4" /> Copied!</>
             ) : (
-              <><Terminal className="w-4 h-4" /> Copy Command</>
+              <><Terminal className="w-4 h-4" /> Copy PowerShell Command</>
             )}
           </motion.button>
           {SCRIPT_TYPES.includes(typeOf(item)) && (
@@ -703,15 +496,12 @@ function AssetCard({ item, index, forceOpen }) {
           )}
         </div>
         <span className="text-[11px] font-mono text-white/40 flex items-center gap-1.5">
-          <ShieldCheck className="w-3 h-3" /> secure link
+          <ShieldCheck className="w-3 h-3" /> served from this site
         </span>
       </div>
       </TiltCard>
 
       <AnimatePresence>
-        {gateOpen && (
-          <GateModal item={item} onClose={() => setGateOpen(false)} />
-        )}
         {previewOpen && (
           <CodePreviewModal item={item} onClose={() => setPreviewOpen(false)} />
         )}
@@ -722,17 +512,17 @@ function AssetCard({ item, index, forceOpen }) {
 
 /* ---------------- SECTION ---------------- */
 
-export default function DownloadHub({ pendingGate, onGateConsumed }) {
+export default function DownloadHub({ pendingDownload, onDownloadConsumed }) {
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('All')
-  const [activeGateId, setActiveGateId] = useState(null)
+  const [activeDownloadId, setActiveDownloadId] = useState(null)
 
   useEffect(() => {
-    if (pendingGate) {
-      setActiveGateId(pendingGate)
-      if (onGateConsumed) onGateConsumed()
+    if (pendingDownload) {
+      setActiveDownloadId(pendingDownload)
+      if (onDownloadConsumed) onDownloadConsumed()
     }
-  }, [pendingGate, onGateConsumed])
+  }, [pendingDownload, onDownloadConsumed])
 
   const allCategories = useMemo(
     () => ['All', ...new Set(SOFTWARE_ITEMS.map((i) => i.category))],
@@ -772,8 +562,8 @@ export default function DownloadHub({ pendingGate, onGateConsumed }) {
           </h2>
           <div className="h-1 w-24 mx-auto section-title-line" />
           <p className="text-white/60 max-w-xl mx-auto mt-5 text-sm sm:text-base">
-            Cleaners, optimizers, and system utilities — each asset goes through a
-            quick anti-bot check before the link releases.
+            Cleaners, optimizers, and system utilities — every asset is served
+            straight from this site, with the full source viewable before you run it.
           </p>
         </motion.div>
 
@@ -828,7 +618,7 @@ export default function DownloadHub({ pendingGate, onGateConsumed }) {
         <div className="grid md:grid-cols-2 gap-6">
           <AnimatePresence mode="popLayout">
             {filtered.map((item, i) => (
-              <AssetCard key={item.id} item={item} index={i} forceOpen={activeGateId === item.id} />
+              <AssetCard key={item.id} item={item} index={i} forceDownload={activeDownloadId === item.id} />
             ))}
           </AnimatePresence>
         </div>

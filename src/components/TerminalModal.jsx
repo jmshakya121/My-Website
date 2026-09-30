@@ -8,7 +8,7 @@ import useEscape from '../hooks/useEscape'
 const HELP = [
   ['help', 'Show this help screen'],
   ['ls | tools', 'List all downloadable scripts'],
-  ['download <id>', 'Trigger the download gate for a script'],
+    ['download <id>', 'Download a script straight from this site'],
   ['whoami | about', 'Developer bio & portfolio summary'],
   ['theme', 'Toggle dark / light mode'],
   ['clear', 'Clear the terminal'],

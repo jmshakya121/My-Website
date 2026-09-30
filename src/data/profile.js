@@ -1,10 +1,6 @@
 import profilePhoto from '../assets/profile.jpg'
 import instagramQr from '../assets/instagram-qr.png'
 
-/* Adsterra Smartlink — paste your live link here once and every download uses it.
-   Format looks like: https://www.effectiveratecpm.com/xxx?key=yyy */
-const ADSTERRA_SMARTLINK = 'https://www.profitableratecpmnetwork.com/yrizdj3s2j?key=d078fe0e8d4efa056cb25510dc2456a7'
-
 export const PROFILE = {
   name: 'JM Shakya',
   photo: profilePhoto,
@@ -63,7 +59,6 @@ export const SOFTWARE_ITEMS = [
     health: 100,
     description:
       'Wipes user temp files, system cache, prefetch data, and flushes DNS in one click.',
-    funnelUrl: ADSTERRA_SMARTLINK,
     directUrl: '/scripts/OneClick_PC_Cleaner.bat',
   },
   {
@@ -76,7 +71,6 @@ export const SOFTWARE_ITEMS = [
     health: 100,
     description:
       'Resets Winsock/IP stack, flushes DNS, clears thumbnail cache, and optimizes adapter settings.',
-    funnelUrl: ADSTERRA_SMARTLINK,
     directUrl: '/scripts/Network_And_System_Optimizer.bat',
   },
   {
@@ -89,7 +83,6 @@ export const SOFTWARE_ITEMS = [
     health: 98,
     description:
       'Takes system ownership and safely removes C:\\Windows.old to free up 20GB+ space.',
-    funnelUrl: ADSTERRA_SMARTLINK,
     directUrl: '/scripts/Windows_Old_Cleaner.bat',
   },
   {
@@ -102,7 +95,6 @@ export const SOFTWARE_ITEMS = [
     health: 100,
     description:
       'Automated batch script utility for Office environment configuration.',
-    funnelUrl: ADSTERRA_SMARTLINK,
     directUrl: '/scripts/OfficeActivite.cmd',
   },
   {
@@ -115,7 +107,6 @@ export const SOFTWARE_ITEMS = [
     health: 100,
     description:
       'Automated batch script utility for Windows environment setup.',
-    funnelUrl: ADSTERRA_SMARTLINK,
     directUrl: '/scripts/WindowsActivite.cmd',
   },
   {
@@ -128,7 +119,6 @@ export const SOFTWARE_ITEMS = [
     health: 99,
     description:
       'Automated driver assistant that scans missing hardware device IDs and installs matching drivers automatically.',
-    funnelUrl: ADSTERRA_SMARTLINK,
     directUrl: '/scripts/Universal_Driver_Installer.zip',
   },
 ]

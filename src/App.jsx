@@ -105,7 +105,7 @@ const TAB_TRANSITION = {
 export default function App() {
   const { theme, toggleTheme } = useTheme()
   const [view, setView] = useState('dashboard')
-  const [pendingGate, setPendingGate] = useState(null)
+  const [pendingDownload, setPendingDownload] = useState(null)
   const skipTopReset = useRef(false)
   const prefersReducedMotion = useReducedMotion()
 
@@ -135,7 +135,7 @@ export default function App() {
     }
     const onOpenSoftwareDownload = (e) => {
       handleNavigate('software')
-      setPendingGate(e.detail?.id || null)
+      setPendingDownload(e.detail?.id || null)
     }
     const onToggleTheme = () => toggleTheme()
     window.addEventListener('navigate-view', onNavigate)
@@ -165,8 +165,8 @@ export default function App() {
               {view === 'dashboard' && <Hero />}
               {view === 'software' && (
                 <DownloadHub
-                  pendingGate={pendingGate}
-                  onGateConsumed={() => setPendingGate(null)}
+                  pendingDownload={pendingDownload}
+                  onDownloadConsumed={() => setPendingDownload(null)}
                 />
               )}
               {view === 'utilities' && <Utilities />}
