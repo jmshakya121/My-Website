@@ -130,10 +130,10 @@ export default function Navbar({ view = 'dashboard', onNavigate, theme = 'dark',
               type="button"
               onClick={() => handleTab(tab.key)}
               aria-current={view === tab.key ? 'page' : undefined}
-              className={`px-3 py-2 rounded-lg text-[13px] font-semibold whitespace-nowrap border transition-colors duration-300 ${
+              className={`px-3 py-2 rounded-lg text-[13px] font-semibold whitespace-nowrap border glow-hover transition-colors duration-300 ${
                 view === tab.key
                   ? 'text-white bg-gradient-to-r from-neon-cyan/20 to-neon-violet/20 border-neon-cyan/50 shadow-[0_0_18px_rgba(0,240,255,0.15)]'
-                  : 'text-white/70 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border-transparent hover:border-neon-cyan/40'
+                  : 'text-white/70 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border-transparent'
               }`}
             >
               {tab.label}

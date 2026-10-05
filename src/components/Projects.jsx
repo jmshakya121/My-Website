@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LineChart, UserCheck, Zap, ArrowUpRight,
@@ -6,7 +6,7 @@ import {
   Braces, ChevronDown, ChevronUp, Workflow, Network, Server,
 } from 'lucide-react'
 import { PROJECTS } from '../data/profile'
-import { useHoverCapable } from '../hooks/useMediaQuery'
+import SharedTiltCard from './TiltCard.jsx'
 
 const featureIcons = {
   'Workflow Automation': Zap,
@@ -41,62 +41,15 @@ const mockTickets = [
   { id: 'TKT-1026', title: 'VPN access for new hire', tag: 'Low', status: 'open' },
 ]
 
-const RESTING_TILT = 'perspective(1000px) rotateX(0deg) rotateY(0deg)'
-
 function TiltCard() {
-  const ref = useRef(null)
-  const canHover = useHoverCapable()
-  const [transform, setTransform] = useState(RESTING_TILT)
   const [detailOpen, setDetailOpen] = useState(false)
-  const [glow, setGlow] = useState({ x: 50, y: 50 })
-
-  const reset = useCallback(() => {
-    setTransform(RESTING_TILT)
-    setGlow({ x: 50, y: 50 })
-  }, [])
-
-  /* Mouse-only pointer tracking. React's onMouseMove also fires for the
-     synthetic mouse events a tap emits on iOS/Android, and those never emit a
-     mouseleave — the card stayed frozen mid-rotation until you tapped
-     elsewhere. Pointer events give us pointerType plus cancel/up to reset. */
-  const onPointerMove = useCallback(
-    (e) => {
-      if (!canHover || e.pointerType !== 'mouse') return
-      const el = ref.current
-      if (!el) return
-      const rect = el.getBoundingClientRect()
-      if (!rect.width || !rect.height) return
-      const px = (e.clientX - rect.left) / rect.width
-      const py = (e.clientY - rect.top) / rect.height
-      setTransform(
-        `perspective(1000px) rotateX(${((py - 0.5) * -10).toFixed(2)}deg) rotateY(${((px - 0.5) * 12).toFixed(2)}deg)`
-      )
-      setGlow({ x: px * 100, y: py * 100 })
-    },
-    [canHover]
-  )
 
   return (
-    <div
-      ref={ref}
-      className="tilt-card relative w-full max-w-4xl mx-auto group"
-      style={{ transform, transition: 'transform 0.15s ease-out', willChange: canHover ? 'transform' : 'auto' }}
-      onPointerMove={onPointerMove}
-      onPointerLeave={reset}
-      onPointerCancel={reset}
-      onPointerUp={reset}
-      onTouchEnd={reset}
-    >
-      {canHover && (
-        <div
-          className="pointer-events-none absolute -inset-8 rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-3xl"
-          style={{
-            background: `radial-gradient(600px circle at ${glow.x}% ${glow.y}%, rgba(0,240,255,0.18), rgba(168,85,247,0.12), transparent 50%)`,
-          }}
-        />
-      )}
-
-      <div className="relative glass rounded-[2rem] overflow-hidden border-white/10">
+    /* Shared component: keeps pointer position in MotionValues, so moving the
+       mouse does not re-render React. The local useState version this replaced
+       committed a render per pointermove, which showed up as tilt lag. */
+    <SharedTiltCard className="w-full max-w-4xl mx-auto">
+      <div className="relative glass glow-hover rounded-[2rem] overflow-hidden border-white/10">
         <div className="grid lg:grid-cols-5">
           {/* Visual side */}
           <div className="lg:col-span-2 relative p-5 sm:p-6 lg:p-10 flex flex-col justify-between min-h-[240px] sm:min-h-[280px] overflow-hidden">
@@ -300,7 +253,7 @@ function TiltCard() {
           </div>
         </div>
       </div>
-    </div>
+    </SharedTiltCard>
   )
 }
 

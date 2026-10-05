@@ -12,6 +12,7 @@ import Footer from './components/Footer.jsx'
 import TerminalModal from './components/TerminalModal.jsx'
 import CommandPalette from './components/CommandPalette.jsx'
 import ToastHost from './components/ToastHost.jsx'
+import CursorGlow from './components/CursorGlow.jsx'
 import useTheme from './hooks/useTheme'
 import useMediaQuery, { useReducedMotion } from './hooks/useMediaQuery'
 
@@ -22,8 +23,15 @@ import useMediaQuery, { useReducedMotion } from './hooks/useMediaQuery'
 const DynamicBackground = lazy(() => import('./components/three/DynamicBackground.jsx'))
 
 /* Small and dependency-free, so it can be imported eagerly and used as the
-   Suspense fallback without pulling in three.js. */
-import CssStarfield from './components/three/CssStarfield.jsx'
+   Suspense fallback without pulling in three.js. The same component is also the
+   fallback *inside* DynamicBackground when a GPU context dies mid-session, so
+   a context loss swaps to a static sea instead of a starburst behind a
+   seascape. */
+import CssSeascape from './components/three/CssSeascape.jsx'
+
+/* Grain, vignette and the text scrim. Rendered above the renderer split so the
+   WebGL and CSS paths are graded identically. */
+import BackgroundFinish from './components/three/BackgroundFinish.jsx'
 
 /* Decided *before* first paint so the `lazy()` above is never triggered on a
    phone — a Suspense-mounted-but-empty child still fetches its chunk. */
@@ -36,19 +44,21 @@ function BackgroundFX({ theme }) {
   return (
     <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
       {canRender3D ? (
-        <Suspense fallback={<CssStarfield theme={theme} />}>
+        <Suspense fallback={<CssSeascape theme={theme} />}>
           <DynamicBackground theme={theme} />
         </Suspense>
       ) : (
-        /* No WebGL on this device (phone, reduced-motion, or no hover) — show the
-           CSS starfield rather than a bare gradient. It is transform-only, so it
-           costs no GPU memory and cannot lose a context. */
-        <CssStarfield theme={theme} />
+        /* No WebGL on this device (phone, reduced-motion, or no hover) — a static
+           CSS seascape rather than a bare gradient. It is transform/paint-only,
+           so it costs no GPU memory, cannot lose a context, and keeps the site
+           looking like a sea on hardware where three.js is too risky. */
+        <CssSeascape theme={theme} />
       )}
       <div className="absolute inset-0 bg-grid-pattern opacity-25" />
       <div className="absolute top-0 -left-40 w-[500px] h-[500px] bg-neon-cyan/5 rounded-full blur-[120px]" />
       <div className="absolute top-1/3 -right-40 w-[500px] h-[500px] bg-neon-violet/5 rounded-full blur-[120px]" />
       <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-neon-fuchsia/5 rounded-full blur-[120px]" />
+      <BackgroundFinish theme={theme} />
     </div>
   )
 }
@@ -182,6 +192,7 @@ export default function App() {
       <TerminalModal />
       <CommandPalette />
       <ToastHost />
+      <CursorGlow />
     </div>
   )
 }

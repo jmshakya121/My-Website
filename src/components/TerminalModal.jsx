@@ -8,7 +8,9 @@ import useEscape from '../hooks/useEscape'
 const HELP = [
   ['help', 'Show this help screen'],
   ['ls | tools', 'List all downloadable scripts'],
-    ['download <id>', 'Download a script straight from this site'],
+  ['download <id>', 'Download a script straight from this site'],
+  ['utilities', 'Jump to the web utilities'],
+  ['contact', 'Jump to the contact form'],
   ['whoami | about', 'Developer bio & portfolio summary'],
   ['theme', 'Toggle dark / light mode'],
   ['clear', 'Clear the terminal'],
@@ -128,6 +130,20 @@ export default function TerminalModal() {
       case 'clear':
         setLines([])
         break
+      case 'utilities':
+        window.dispatchEvent(new CustomEvent('navigate-view', { detail: 'utilities' }))
+        push([...base, { type: 'ok', text: 'Switching to Web Utilities...' }])
+        break
+      case 'contact': {
+        window.dispatchEvent(new CustomEvent('navigate-view', { detail: 'contact' }))
+        push([
+          ...base,
+          { type: 'ok', text: 'Switching to Contact...' },
+          { type: 'out', text: `Email: ${PROFILE.contact.email}` },
+          { type: 'out', text: `Phone: ${PROFILE.contact.phone}` },
+        ])
+        break
+      }
       default:
         push([...base, { type: 'err', text: `command not found: ${cmd} -- try 'help'` }])
     }

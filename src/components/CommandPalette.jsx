@@ -2,9 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search, LayoutDashboard, Download, Wrench, Rss, FolderKanban, Send,
-  Sun, Command, CornerDownLeft, Package, X,
+  Sun, Command, CornerDownLeft, Package, X, Copy,
 } from 'lucide-react'
 import { SOFTWARE_ITEMS } from '../data/profile'
+import { commandFor, typeOf } from '../utils/scriptCommand'
+import { copyText, copyWithToast } from '../utils/copy'
 import useScrollLock from '../hooks/useScrollLock'
 
 const NAV_ITEMS = [
@@ -30,6 +32,7 @@ export default function CommandPalette() {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
+  const [copied, setCopied] = useState(null)
   const inputRef = useRef(null)
 
   const items = useMemo(() => {
@@ -42,9 +45,23 @@ export default function CommandPalette() {
       icon: Package,
       id: it.id,
     }))
+    /* One copy action per asset, so "copy powershell" from the keyboard lands on
+       exactly the command the Software Utilities cards hand you. */
+    const copies = SOFTWARE_ITEMS.map((it) => ({
+      type: 'copy',
+      key: `cp-${it.id}`,
+      label: `Copy command · ${it.title || it.id}`,
+      sub: typeOf(it).includes('ps1') || ['.cmd', '.bat', '.sh'].includes(typeOf(it))
+        ? commandFor(it)
+        : 'Download one-liner',
+      keywords: `copy command powershell pwsh cmd script one-liner paste ${it.id} ${it.title} ${it.category}`,
+      icon: Copy,
+      id: it.id,
+    }))
     return [
       ...NAV_ITEMS.map((i) => ({ ...i, group: 'Go to', keywords: `${i.label} go jump open navigate tab` })),
       ...downloads.map((i) => ({ ...i, group: 'Downloads' })),
+      ...copies.map((i) => ({ ...i, group: 'Copy command' })),
       ...ACTION_ITEMS.map((i) => ({ ...i, group: 'Actions' })),
     ]
   }, [])
@@ -92,14 +109,33 @@ export default function CommandPalette() {
   const run = (item) => {
     if (item.type === 'nav') {
       window.dispatchEvent(new CustomEvent('navigate-view', { detail: item.key }))
+      setOpen(false)
     } else if (item.type === 'download') {
       window.dispatchEvent(
         new CustomEvent('open-software-download', { detail: { id: item.id } })
       )
+      setOpen(false)
+    } else if (item.type === 'copy') {
+      /* Deliberately does NOT close the palette: copying a one-liner is a
+         read-then-paste action, so staying open lets the user grab the next
+         command without re-opening with the keyboard. */
+      copyCommand(item.id)
     } else if (item.type === 'action' && item.key === 'theme') {
       window.dispatchEvent(new CustomEvent('toggle-theme'))
+      setOpen(false)
     }
-    setOpen(false)
+  }
+
+  const copyCommand = async (id) => {
+    const item = SOFTWARE_ITEMS.find((i) => i.id === id)
+    if (!item) return
+    const cmd = commandFor(item)
+    const ok = await copyText(cmd)
+    if (ok) {
+      setCopied(id)
+      setTimeout(() => setCopied((c) => (c === id ? null : c)), 2000)
+    }
+    copyWithToast(cmd, { message: 'Command copied' })
   }
 
   const onKeyDown = (e) => {
@@ -202,11 +238,22 @@ export default function CommandPalette() {
                       </span>
                       <span className="min-w-0">
                         <span className="block truncate font-medium">{item.label}</span>
-                        {item.sub && <span className="block truncate text-[10px] font-mono text-white/35">{item.sub}</span>}
+                        {item.sub && (
+                          <span className="block truncate text-[10px] font-mono text-white/35">
+                            {item.type === 'copy' && copied === item.id ? 'Copied to clipboard' : item.sub}
+                          </span>
+                        )}
                       </span>
                       <span className="ml-auto flex items-center gap-2 shrink-0">
                         {item.type === 'action' && (
                           <span className="text-[10px] font-mono text-white/35">{item.key === 'theme' ? `Dark / Light` : ''}</span>
+                        )}
+                        {item.type === 'copy' && (
+                          copied === item.id ? (
+                            <span className="text-[10px] font-mono text-emerald-400">copied</span>
+                          ) : (
+                            <span className="hidden sm:inline text-[10px] font-mono text-white/25">copy</span>
+                          )
                         )}
                         {isActive && (
                           <span className="flex items-center gap-0.5 text-[10px] font-mono text-neon-cyan">
@@ -224,9 +271,9 @@ export default function CommandPalette() {
               <span className="flex items-center gap-1.5">
                 <Command className="w-3.5 h-3.5" /> K to open anytime
               </span>
-              <span className="flex items-center gap-3">
+                <span className="flex items-center gap-3">
                 <span className="flex items-center gap-1"><Sun className="w-3 h-3" /> ↑↓ navigate</span>
-                <span className="flex items-center gap-1"><CornerDownLeft className="w-3 h-3" /> select</span>
+                <span className="flex items-center gap-1"><CornerDownLeft className="w-3 h-3" /> select / copy</span>
                 <span className="px-1.5 py-0.5 rounded border border-white/20">esc</span>
               </span>
             </div>

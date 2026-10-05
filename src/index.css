@@ -200,29 +200,104 @@ html.light {
 }
 
 @layer components {
+  /* Glassmorphism. The blur alone reads as a soft translucent smudge, so the
+     "sharp" part comes from three things layered together: a bright 1px top
+     highlight (reads as a lit edge), a gradient body instead of a flat fill
+     (so it isn't a dead grey slab), and a coloured outer glow on hover. */
   .glass {
     @apply backdrop-blur-xl border;
+    background-image: linear-gradient(
+      160deg,
+      rgba(255, 255, 255, 0.07) 0%,
+      rgba(255, 255, 255, 0.025) 45%,
+      rgba(255, 255, 255, 0.015) 100%
+    );
     background-color: var(--surface);
     border-color: var(--border);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
+      inset 0 -1px 0 0 rgba(255, 255, 255, 0.04),
+      0 8px 32px -12px rgba(0, 0, 0, 0.6);
   }
 
   .glass-strong {
-    @apply backdrop-blur-2xl border;
+    @apply backdrop-blur-xl border;
+    background-image: linear-gradient(
+      160deg,
+      rgba(255, 255, 255, 0.11) 0%,
+      rgba(255, 255, 255, 0.05) 45%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
     background-color: var(--surface-strong);
     border-color: var(--border-strong);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.18),
+      inset 0 -1px 0 0 rgba(255, 255, 255, 0.06),
+      0 12px 40px -12px rgba(0, 0, 0, 0.7);
+  }
+
+  /* Light theme needs darker strokes — a white highlight is invisible on a
+     light surface and the card loses its edge entirely. */
+  .light .glass,
+  .light .glass-strong {
+    background-image: linear-gradient(
+      160deg,
+      rgba(255, 255, 255, 0.85) 0%,
+      rgba(255, 255, 255, 0.6) 100%
+    );
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
+      0 8px 24px -14px rgba(15, 23, 42, 0.28);
+  }
+
+  /* Glowing hover border for nav tabs, project cards and script cards.
+     Two shadows stacked: a tight bright ring on the edge, plus a wide soft
+     bloom behind it. `outline` is deliberately not used — it doesn't follow
+     border-radius. */
+  .glow-hover {
+    transition:
+      box-shadow 300ms ease,
+      border-color 300ms ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .glow-hover:hover {
+      border-color: rgba(0, 240, 255, 0.55) !important;
+      box-shadow:
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.16),
+        0 0 0 1px rgba(0, 240, 255, 0.28),
+        0 0 18px -2px rgba(0, 240, 255, 0.45),
+        0 0 44px -8px rgba(168, 85, 247, 0.45),
+        0 10px 34px -14px rgba(0, 0, 0, 0.65);
+    }
+
+    .glow-hover-violet:hover {
+      border-color: rgba(168, 85, 247, 0.55) !important;
+      box-shadow:
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.16),
+        0 0 0 1px rgba(168, 85, 247, 0.3),
+        0 0 18px -2px rgba(168, 85, 247, 0.45),
+        0 0 44px -8px rgba(232, 121, 249, 0.35),
+        0 10px 34px -14px rgba(0, 0, 0, 0.65);
+    }
   }
 
   /* Backdrop blur is the single biggest GPU cost on mid-range phones.
-     Ten stacked layers at xl/2xl blur will drop frames and can OOM, so
-     phones get a much cheaper blur. */
+     Ten stacked layers at md blur will drop frames and can OOM, so
+     phones get a much cheaper blur, and the hover bloom is dropped since
+     there is no hover state to trigger it. This override is what keeps the
+     desktop `backdrop-blur-xl` from being a mobile performance regression. */
   @media (max-width: 767px), (hover: none) {
     .glass {
       backdrop-filter: blur(6px) saturate(130%);
       -webkit-backdrop-filter: blur(6px) saturate(130%);
+      box-shadow:
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
+        0 6px 20px -12px rgba(0, 0, 0, 0.5);
     }
     .glass-strong {
-      backdrop-filter: blur(10px) saturate(130%);
-      -webkit-backdrop-filter: blur(10px) saturate(130%);
+      backdrop-filter: blur(8px) saturate(130%);
+      -webkit-backdrop-filter: blur(8px) saturate(130%);
     }
     .chip {
       backdrop-filter: blur(4px);
@@ -351,6 +426,19 @@ html.light {
     overflow-wrap: anywhere;
     word-break: break-word;
   }
+
+  /* Film grain over the WebGL background. An inline SVG feTurbulence data URI
+     rather than a bitmap: no extra network request, scales to any DPR, and
+     costs one composited layer. `mix-blend-overlay` keeps it neutral — it
+     adds texture in midtones without shifting black or white, so the scene's
+     contrast (and therefore text legibility) is unchanged. Opacity is kept very
+     low because this layer sits over the whole viewport. */
+  .bg-grain {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    mix-blend-mode: overlay;
+    opacity: 0.07;
+  }
 }
 
 /* 3D utilities */
@@ -429,6 +517,19 @@ html.light {
   }
   50% {
     transform: translate3d(4%, 3%, 0) scale(1.12);
+  }
+}
+
+/* Typewriter caret. `step-end` keeps it a hard on/off blink — an eased blink
+   reads as a fade, which looks like a rendering glitch next to typed text. */
+@keyframes caretBlink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
   }
 }
 

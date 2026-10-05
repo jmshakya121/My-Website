@@ -10,18 +10,12 @@ import {
 import { SOFTWARE_ITEMS } from '../data/profile'
 import { showToast } from '../utils/toast'
 import { copyText } from '../utils/copy'
+import { SCRIPT_TYPES, nameOf, typeOf, fileUrlOf, commandFor } from '../utils/scriptCommand'
 import TiltCard from './TiltCard.jsx'
 import { ModalBackdrop, ModalPanel, ModalHeader } from './ModalShell.jsx'
 
-const SCRIPT_TYPES = ['.cmd', '.bat', '.sh', '.ps1']
-
 const GITHUB_RELEASES = 'https://github.com/jmshakya121/My-Website/releases/latest'
 
-const nameOf = (item) => item.title || item.name || item.id
-const typeOf = (item) =>
-  item.type ||
-  (item.directUrl ? `.${item.directUrl.split('.').pop().toLowerCase()}` : '.bat')
-const fileUrlOf = (item) => item.directUrl || item.downloadUrl
 const releaseUrlOf = (item) => item.releaseUrl || GITHUB_RELEASES
 
 function placeholderScript(item) {
@@ -105,16 +99,6 @@ function downloadAsset(item) {
   }
   triggerDownload(item)
   showToast('Download started', { kind: 'download', description: `${nameOf(item)}${typeOf(item)}` })
-}
-
-/* One-liner for power users to run the asset in PowerShell/CMD */
-function commandFor(item) {
-  const url = `${window.location.origin}${fileUrlOf(item)}`
-  const file = fileUrlOf(item).split('/').pop()
-  if (SCRIPT_TYPES.includes(typeOf(item))) {
-    return `irm ${url} | iex`
-  }
-  return `iwr ${url} -OutFile "$env:USERPROFILE\\Downloads\\${file}"; explorer "$env:USERPROFILE\\Downloads\\${file}"`
 }
 
 /* ---------------- CODE PREVIEW MODAL ---------------- */
@@ -358,7 +342,7 @@ function AssetCard({ item, index, forceDownload }) {
   }
 
   return (
-    <motion.div
+    <TiltCard
       layout
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -366,9 +350,13 @@ function AssetCard({ item, index, forceDownload }) {
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.5, delay: index * 0.05 }}
       viewport={{ once: true, margin: '-50px' }}
-      className="group relative glass rounded-2xl p-4 sm:p-6 hover:border-neon-cyan/40 hover:shadow-[0_0_40px_rgba(0,240,255,0.08)] transition-colors duration-500"
+      className="group glass glow-hover rounded-2xl p-4 sm:p-6 transition-colors duration-500 h-full"
+      intensity={7}
     >
-      <TiltCard className="flex flex-col h-full">
+      {/* `relative` + `z-10` so card content sits above TiltCard's glow layers;
+          `flex flex-col h-full` keeps the action row pinned to the bottom so
+          cards in a row line up despite differing description lengths. */}
+      <div className="relative z-10 flex flex-col h-full">
         {/* `flex-wrap` + `min-w-0`: a long badge next to the icon used to
             widen the card past the viewport on narrow screens. */}
         <div className="flex flex-wrap items-start justify-between gap-2 mb-4">
@@ -499,14 +487,14 @@ function AssetCard({ item, index, forceDownload }) {
           <ShieldCheck className="w-3 h-3" /> served from this site
         </span>
       </div>
-      </TiltCard>
+      </div>
 
       <AnimatePresence>
         {previewOpen && (
           <CodePreviewModal item={item} onClose={() => setPreviewOpen(false)} />
         )}
       </AnimatePresence>
-    </motion.div>
+    </TiltCard>
   )
 }
 

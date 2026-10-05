@@ -4,6 +4,12 @@ import {
   GraduationCap, MapPin, Terminal, Rocket, Download, FolderKanban,
 } from 'lucide-react'
 import { PROFILE, SITE_METRICS } from '../data/profile'
+import useTypewriter from '../hooks/useTypewriter'
+import { useReducedMotion } from '../hooks/useMediaQuery'
+import TiltCard from './TiltCard.jsx'
+import Reveal from './Reveal.jsx'
+
+const ROLES = ['Computer Science Developer', 'Systems Engineer', 'Full-Stack Architect']
 
 const METRICS = [
   { icon: Rocket, label: 'Active Projects', value: SITE_METRICS.projects },
@@ -18,6 +24,9 @@ const HIGHLIGHTS = [
 ]
 
 export default function Hero() {
+  const prefersReducedMotion = useReducedMotion()
+  const role = useTypewriter(ROLES)
+
   return (
     <section id="dashboard" className="relative overflow-hidden">
       {/* Gradient overlays — use CSS var bg colors */}
@@ -44,9 +53,21 @@ export default function Hero() {
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-white leading-[1.1] mb-5">
               <span className="neon-text">{PROFILE.name}</span>
-              <span className="block text-2xl sm:text-3xl lg:text-4xl text-white/90 mt-2">
-                Computer Science Developer &amp; Systems Engineer
+              {/* The animated text is hidden from assistive tech: mid-cycle it
+                  is a half-typed fragment ("Computer Scie"), which a screen
+                  reader would announce verbatim. The full role list is exposed
+                  once below instead. Fixed min-height stops the heading from
+                  reflowing the page as the word grows and shrinks. */}
+              <span
+                aria-hidden="true"
+                className="block text-2xl sm:text-3xl lg:text-4xl text-white/90 mt-2 min-h-[1.35em]"
+              >
+                <span className="neon-text">{role}</span>
+                {!prefersReducedMotion && (
+                  <span className="inline-block w-[3px] h-[0.95em] ml-1 align-middle bg-neon-cyan animate-[caretBlink_1.05s_step-end_infinite]" />
+                )}
               </span>
+              <span className="sr-only">{ROLES.join(' / ')}</span>
             </h1>
 
             <p className="text-lg sm:text-xl text-white/70 leading-relaxed mb-4 max-w-xl">
@@ -158,26 +179,21 @@ export default function Hero() {
         </div>
 
         {/* Dashboard Metrics Row */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-12 max-w-4xl mx-auto"
-        >
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-12 max-w-4xl mx-auto">
           {METRICS.map(({ icon: Icon, label, value }, i) => (
-            <motion.div
-              key={label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.7 + i * 0.1 }}
-              className="glass rounded-2xl p-5 text-center hover:border-neon-cyan/40 hover:shadow-[0_0_30px_rgba(0,240,255,0.08)] transition-all duration-300 group"
-            >
-              <Icon className="w-5 h-5 text-neon-cyan mx-auto mb-2 group-hover:scale-110 transition-transform" />
-              <p className="text-2xl font-bold neon-text font-mono">{value}</p>
-              <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">{label}</p>
-            </motion.div>
+            /* TiltCard supplies both the 3D tilt and the cursor-following neon
+               border, from MotionValues so the mouse never triggers a render. */
+            <Reveal key={label} delay={0.7 + i * 0.1}>
+              <TiltCard intensity={7} className="block h-full">
+                <div className="glass rounded-2xl p-5 h-full text-center">
+                  <Icon className="w-5 h-5 text-neon-cyan mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                  <p className="text-2xl font-bold neon-text font-mono">{value}</p>
+                  <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">{label}</p>
+                </div>
+              </TiltCard>
+            </Reveal>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   )
